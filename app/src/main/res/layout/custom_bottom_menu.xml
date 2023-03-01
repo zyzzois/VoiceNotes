@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/bottomMenu"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    app:layout_behavior="@string/bottom_sheet_behavior"
+    android:background="@drawable/custom_bottom_menu_rounded_back"
+    android:orientation="vertical">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="30dp"
+        android:fontFamily="@font/vk_sans_display_bold"
+        android:gravity="center"
+        android:text="@string/custom_bottom_menu_title"
+        android:textSize="16sp" />
+
+
+    <com.google.android.material.textfield.TextInputLayout
+        style="@style/CustomMenuEditTextLayoutStyle"
+        android:layout_width="match_parent"
+        app:boxStrokeWidth="0dp"
+        app:boxStrokeWidthFocused="0dp"
+        android:layout_height="match_parent">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/inputFileName"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginStart="30dp"
+            android:layout_marginTop="15dp"
+            android:layout_marginEnd="30dp"
+            android:layout_marginBottom="15dp"
+            android:fontFamily="@font/vk_sans_display_regular"
+            android:hint="@string/note_title_text" />
+
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginBottom="15dp">
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/buttonDeleteOnBottomMenu"
+            android:layout_width="match_parent"
+            android:layout_marginStart="30dp"
+            android:text="@string/deleteText"
+            android:layout_weight="1"
+            android:fontFamily="@font/vk_sans_display_demi_bold"
+            android:textColor="@color/gray_dark"
+            app:cornerRadius="16dp"
+            android:backgroundTint="@color/gray"
+            android:layout_height="wrap_content" />
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/buttonSaveOnBottomMenu"
+            android:layout_width="match_parent"
+            android:layout_weight="1"
+            android:fontFamily="@font/vk_sans_display_demi_bold"
+            android:backgroundTint="@color/vk_blue_color"
+            android:text="@string/OkText"
+            app:cornerRadius="16dp"
+            android:layout_marginEnd="30dp"
+            android:layout_marginStart="10dp"
+            android:layout_height="wrap_content"/>
+
+    </LinearLayout>
+
+
+</LinearLayout>

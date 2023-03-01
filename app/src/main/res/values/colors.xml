@@ -11,5 +11,7 @@
     <color name="gray">#C7C7C7</color>
     <color name="gray_dark">#4F4F4F</color>
     <color name="gray_dark_disabled">#7A7A7A</color>
+    <color name="light_soft_gray">#E6E6E6</color>
     <color name="statusColor">#4680C2</color>
+    <color name="bottom_menu_screen_shadow">#A6A3A3A3</color>
 </resources>
