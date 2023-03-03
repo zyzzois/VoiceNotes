@@ -2,10 +2,11 @@ package com.example.domain.usecase
 
 import com.example.domain.entity.NoteEntity
 import com.example.domain.repository.NoteListRepository
+import javax.inject.Inject
 
-class AddNoteItemUseCase(private val repository: NoteListRepository) {
+class AddNoteItemUseCase @Inject constructor(private val repository: NoteListRepository) {
 
-    operator fun invoke(note: NoteEntity) {
+    suspend operator fun invoke(note: NoteEntity) {
         repository.addNote(note)
     }
 
