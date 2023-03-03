@@ -1,4 +1,4 @@
-package com.example.voicenotes
+package com.example.voicenotes.utils
 
 import android.Manifest
 import android.app.Activity
