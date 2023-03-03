@@ -14,5 +14,5 @@ dependencyResolutionManagement {
 }
 rootProject.name = "VoiceNotes"
 include ':app'
-include ':domain'
 include ':data'
+include ':domain'
