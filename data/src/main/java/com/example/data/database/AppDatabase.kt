@@ -5,14 +5,14 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 
-@Database(entities = [NoteModelDb::class], version = 1)
+@Database(entities = [NoteModelDb::class], version = 1, exportSchema = false)
 abstract class AppDatabase : RoomDatabase() {
 
-    abstract fun voiceNoteDao(): NoteDao
+    abstract fun notesDao(): NoteDao
 
     companion object {
         private var db: AppDatabase? = null
-        private const val DB_NAME = "main.db"
+        private const val DB_NAME = "voiceNotes.db"
         private val LOCK = Any()
 
         fun getInstance(context: Context): AppDatabase {

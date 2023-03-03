@@ -1,11 +1,15 @@
 package com.example.domain.entity
 
+
 data class NoteEntity(
-    val name: String,
-    val id: Int = UNDEFINED_ID,
-    val voice: Long
+    val fileName: String,
+    val timesTamp: String,
+    val duration: String,
+    var id: Int = UNDEFINED_ID,
+    var filepath: String
 ) {
-    companion object {
+    companion object{
         const val UNDEFINED_ID = 0
     }
 }
+
