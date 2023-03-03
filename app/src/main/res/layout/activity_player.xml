@@ -1,0 +1,172 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".screens.PlayerActivity">
+
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?actionBarSize"
+        app:title=" "
+        app:layout_constraintTop_toTopOf="parent" >
+        <TextView
+            android:id="@+id/tvFileName"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="20sp"
+            android:gravity="center"
+            android:layout_marginEnd="46dp"/>
+
+    </com.google.android.material.appbar.MaterialToolbar>
+
+    <ImageButton
+        android:id="@+id/buttonDropDownPlayer"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="5dp"
+        android:background="?selectableItemBackgroundBorderless"
+        android:src="@drawable/ic_drop_down_player"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <RelativeLayout
+        android:id="@+id/relativeLayout"
+        android:layout_width="match_parent"
+        android:layout_height="300dp"
+        android:layout_marginTop="80dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/buttonDropDownPlayer">
+        <com.gauravk.audiovisualizer.visualizer.CircleLineVisualizer
+            xmlns:custom="http://schemas.android.com/apk/res-auto"
+            android:id="@+id/blast"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            custom:avDensity="0.8"
+            custom:avType="fill"
+            custom:avColor="@color/vk_blue_color"
+            custom:avSpeed="normal">
+        </com.gauravk.audiovisualizer.visualizer.CircleLineVisualizer>
+    </RelativeLayout>
+
+
+    <SeekBar
+        android:id="@+id/seekBar"
+        android:layout_marginStart="5dp"
+        android:layout_marginEnd="5dp"
+        android:layout_marginTop="100dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="15dp"
+        android:progress="10"
+        android:progressTint="@color/vk_blue_color"
+        android:thumbTint="@color/vk_blue_color"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/relativeLayout" />
+
+
+    <TextView
+        android:id="@+id/tvPlayerNoteTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:fontFamily="@font/vk_sans_display_medium"
+        android:text="title"
+        android:layout_marginStart="21dp"
+        android:layout_marginEnd="21dp"
+        android:textColor="@color/gray_dark"
+        android:textSize="25sp"
+        android:layout_marginTop="35dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/seekBar" />
+
+    <TextView
+        android:id="@+id/tvDuration"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="0:00"
+        android:textColor="@color/gray_dark"
+        android:fontFamily="@font/vk_sans_display_medium"
+        app:layout_constraintTop_toBottomOf="@+id/seekBar"
+        android:textSize="13sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginEnd="21dp"
+        />
+
+    <TextView
+        android:id="@+id/tvCurrentTime"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="0:00"
+        android:textColor="@color/gray_dark"
+        android:fontFamily="@font/vk_sans_display_medium"
+        app:layout_constraintTop_toBottomOf="@+id/seekBar"
+        android:textSize="13sp"
+        app:layout_constraintStart_toStartOf="parent"
+        android:layout_marginStart="21dp"
+        />
+
+    <TextView
+        android:id="@+id/tvPlayerNoteDate"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="50dp"
+        android:fontFamily="@font/vk_sans_display_regular"
+        android:text="date"
+        android:textColor="@color/vk_blue_color"
+        android:textSize="15sp"
+        app:layout_constraintBottom_toTopOf="@+id/linearLayout2"
+        app:layout_constraintEnd_toEndOf="@+id/tvPlayerNoteTitle"
+        app:layout_constraintStart_toStartOf="@+id/tvPlayerNoteTitle"
+        app:layout_constraintTop_toBottomOf="@+id/tvPlayerNoteTitle" />
+
+    <LinearLayout
+        android:id="@+id/linearLayout2"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:orientation="horizontal"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        android:layout_marginBottom="40dp"
+        android:layout_marginStart="15dp"
+        android:layout_marginEnd="15dp"
+        app:layout_constraintStart_toStartOf="parent">
+
+        <ImageButton
+            android:id="@+id/buttonBack"
+            android:layout_width="55dp"
+            android:layout_height="55dp"
+            android:background="@drawable/ic_navigate_previous_note"
+            android:layout_marginEnd="40dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/imageButton3"
+            app:layout_constraintStart_toStartOf="parent" />
+
+        <ImageButton
+            android:id="@+id/buttonPlayerPlayStop"
+            android:layout_width="66dp"
+            android:background="@drawable/ic_round_play_circle"
+
+            android:layout_height="66dp" />
+
+        <ImageButton
+            android:id="@+id/buttonNext"
+            android:layout_width="55dp"
+            android:layout_height="55dp"
+            android:background="@drawable/ic_navigate_next_note"
+            android:layout_marginStart="40dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+
+    </LinearLayout>
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

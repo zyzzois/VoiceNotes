@@ -2,9 +2,12 @@ package com.example.voicenotes.screens
 
 import android.content.Context
 import android.content.Intent
+import android.media.MediaPlayer
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import androidx.core.content.res.ResourcesCompat
 import androidx.lifecycle.ViewModelProvider
+import com.example.voicenotes.R
 import com.example.voicenotes.app.NoteListApp
 import com.example.voicenotes.databinding.ActivityNotesBinding
 import com.example.voicenotes.recycler.NoteListAdapter
@@ -28,6 +31,10 @@ class NotesActivity : AppCompatActivity() {
 
     private val viewModel by lazy {
         ViewModelProvider(this, viewModelFactory)[MainViewModel::class.java]
+    }
+
+    private val mediaPlayer by lazy {
+        MediaPlayer()
     }
 
     private lateinit var noteListAdapter: NoteListAdapter
@@ -57,15 +64,49 @@ class NotesActivity : AppCompatActivity() {
         setupClickListener()
     }
 
-    private fun setupClickListener() {
-        noteListAdapter.onNoteItemClickListener = {
-            val intent = PlayerActivity.newIntentStartPlayer(this, it.filepath, it.fileName)
+    private fun setupClickListener() = with(noteListAdapter) {
+        onNoteItemClickListener = {
+            val intent = PlayerActivity.newIntentStartPlayer(
+                this@NotesActivity,
+                it.filepath,
+                it.fileName
+            )
             startActivity(intent)
         }
-        noteListAdapter.onNoteItemLongClickListener = {
-            showToast(this, "long click")
+        onNoteItemLongClickListener = {
+            showToast("long click")
+        }
+        onNoteItemPlayButtonCLickListener = {
+
+            mediaPlayer.apply {
+                setDataSource(it.filepath)
+                prepare()
+            }
         }
     }
+
+//    private fun playOrStopNote() = with(binding) {
+//
+//        if (!mediaPlayer.isPlaying) {
+//            mediaPlayer.start()
+//
+//            buttonPlayerPlayStop.background = ResourcesCompat.getDrawable(
+//                resources,
+//                R.drawable.ic_round_pause_circle,
+//                theme
+//            )
+//            handler.postDelayed(runnable, delay)
+//        } else {
+//            mediaPlayer.pause()
+//            buttonPlayerPlayStop.background = ResourcesCompat.getDrawable(
+//                resources,
+//                R.drawable.ic_round_play_circle,
+//                theme
+//            )
+//            handler.removeCallbacks(runnable)
+//        }
+//    }
+
 
     companion object {
         fun newIntentOpenNotesActivity(context: Context) = Intent(context, NotesActivity::class.java)

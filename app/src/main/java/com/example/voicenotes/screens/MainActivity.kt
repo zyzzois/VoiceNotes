@@ -1,32 +1,53 @@
-package com.example.voicenotes
+package com.example.voicenotes.screens
 
 import android.content.pm.PackageManager
 import android.media.MediaRecorder
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.util.Log
 import android.view.View
 import android.widget.LinearLayout
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.ViewModelProvider
+import com.example.voicenotes.R
+import com.example.voicenotes.app.NoteListApp
 import com.example.voicenotes.databinding.ActivityMainBinding
-import com.example.voicenotes.databinding.CustomBottomMenuBinding
+import com.example.voicenotes.utils.*
+import com.example.voicenotes.utils.Constants.FULL_DATE_PATTERN
+import com.example.voicenotes.utils.Constants.REQUEST_CODE
+import com.example.voicenotes.utils.Timer
+import com.example.voicenotes.vm.NoteItemViewModel
+import com.example.voicenotes.vm.ViewModelFactory
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import java.io.File
 import java.io.IOException
 import java.text.SimpleDateFormat
 import java.util.*
+import javax.inject.Inject
 
 class MainActivity : AppCompatActivity(), Timer.TimerTickListener {
+    @Inject
+    lateinit var viewModelFactory: ViewModelFactory
 
     private val binding by lazy {
         ActivityMainBinding.inflate(layoutInflater)
     }
+    private val component by lazy {
+        (application as NoteListApp).component
+    }
+    private val viewModel by lazy {
+        ViewModelProvider(this, viewModelFactory)[NoteItemViewModel::class.java]
+    }
+    private val timer by lazy {
+        Timer(this)
+    }
 
     private var permissionGranted = false
-    private lateinit var timer: Timer
     private lateinit var recorder: MediaRecorder
     private var dirPath = ""
     private var filename = ""
+    private lateinit var date: String
     private var isRecording = false
     private var isPaused = false
     private lateinit var bottomSheetBehavior: BottomSheetBehavior<LinearLayout>
@@ -34,6 +55,7 @@ class MainActivity : AppCompatActivity(), Timer.TimerTickListener {
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        component.inject(this)
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
         requestAudioPermission()
@@ -42,12 +64,11 @@ class MainActivity : AppCompatActivity(), Timer.TimerTickListener {
     }
 
     private fun requestAudioPermission() {
-        if (!isAudioPermissionGranted(activityContext))
-            showAudioPermissionDialog(activityContext, REQUEST_CODE)
+        if (!isAudioPermissionGranted())
+            showAudioPermissionDialog(REQUEST_CODE)
     }
 
     private fun init() {
-        timer = Timer(activityContext)
         bottomSheetBehavior = BottomSheetBehavior.from(binding.bottomMenuId.bottomMenu)
         bottomSheetBehavior.apply {
             peekHeight = 0
@@ -63,26 +84,26 @@ class MainActivity : AppCompatActivity(), Timer.TimerTickListener {
                 else -> startRecord()
             }
         }
+
         buttonShowList.setOnClickListener {
-            showToast(activityContext, "List button")
+            startActivity(NotesActivity.newIntentOpenNotesActivity(activityContext))
         }
+
         buttonDone.setOnClickListener {
             stopRecord()
-            showToast(activityContext, "Record saved")
             bottomSheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
             bottomMenuBackground.visibility = View.VISIBLE
-            //
             binding.bottomMenuId.inputFileName.setText(filename)
         }
+
         buttonDelete.setOnClickListener {
             stopRecord()
-            File("$dirPath$filename.mp3").delete()
-            showToast(activityContext, "Record deleted")
-
+            File(filePath(dirPath, filename)).delete()
+            showToast("Record deleted")
         }
 
         bottomMenuId.buttonDeleteOnBottomMenu.setOnClickListener {
-            File("$dirPath$filename.mp3").delete()
+            File(filePath(dirPath, filename)).delete()
             dismiss()
         }
         bottomMenuId.buttonSaveOnBottomMenu.setOnClickListener {
@@ -91,27 +112,29 @@ class MainActivity : AppCompatActivity(), Timer.TimerTickListener {
         }
 
         bottomMenuBackground.setOnClickListener {
-            File("$dirPath$filename.mp3").delete()
+            File(filePath(dirPath, filename)).delete()
             dismiss()
         }
         buttonDelete.isClickable = false
     }
 
     private fun startRecord() = with(binding) {
-        if (!isAudioPermissionGranted(activityContext)) {
-            showAudioPermissionDialog(activityContext, REQUEST_CODE)
+        if (!isAudioPermissionGranted()) {
+            showAudioPermissionDialog(REQUEST_CODE)
             return
         }
         recorder = MediaRecorder()
         dirPath = "${externalCacheDir?.absolutePath}/"
-        val sdf = SimpleDateFormat("yyyy.MM.DD_hh.mm.ss")
-        val date = sdf.format(Date())
-        filename = "audio_record_$date"
+
+        val sdf = SimpleDateFormat(FULL_DATE_PATTERN, Locale.getDefault())
+        date = sdf.format(Date())
+
+        filename = returnDefaultFileName(date)
         recorder.apply {
             setAudioSource(MediaRecorder.AudioSource.MIC)
             setOutputFormat(MediaRecorder.OutputFormat.MPEG_4)
             setAudioEncoder(MediaRecorder.AudioEncoder.AAC)
-            setOutputFile("$dirPath$filename.mp3")
+            setOutputFile(filePath(dirPath, filename))
             try {
                 prepare()
             } catch (_: IOException) {}
@@ -128,6 +151,7 @@ class MainActivity : AppCompatActivity(), Timer.TimerTickListener {
 
         buttonShowList.visibility= View.GONE
         buttonDone.visibility= View.VISIBLE
+
     }
     private fun pauseRecord() {
         recorder.pause()
@@ -144,7 +168,6 @@ class MainActivity : AppCompatActivity(), Timer.TimerTickListener {
     }
     private fun stopRecord() = with(binding) {
         timer.stop()
-
         recorder.apply {
             stop()
             release()
@@ -157,10 +180,7 @@ class MainActivity : AppCompatActivity(), Timer.TimerTickListener {
         buttonDelete.isClickable = false
         buttonDelete.setImageResource(R.drawable.ic_delete_disabled)
         buttonRecord.setImageResource(R.drawable.ic_mic)
-
-        tvTimer.text = "00:00.0"
     }
-
     private fun dismiss() = with(binding) {
         bottomMenuBackground.visibility = View.GONE
         Handler(Looper.getMainLooper()).postDelayed({
@@ -171,27 +191,29 @@ class MainActivity : AppCompatActivity(), Timer.TimerTickListener {
 
     private fun saveNote() {
         val newFileName = binding.bottomMenuId.inputFileName.text.toString()
-        if (newFileName != filename) {
-            val newFile = File("$dirPath$newFileName.mp3")
-            File("$dirPath$filename.mp3").renameTo(newFile)
-        }
-    }
 
+        if (newFileName != filename) {
+            val newFile = File(filePath(dirPath, newFileName))
+            File(filePath(dirPath, filename)).renameTo(newFile)
+        }
+        val filePath = filePath(dirPath, newFileName)
+        viewModel.addNoteItem(
+            fileName = newFileName,
+            timesTamp = date,
+            duration = "sample",
+            filePath = filePath
+        )
+    }
     override fun timerTick(duration: String) {
         binding.tvTimer.text = duration
     }
-
     override fun onRequestPermissionsResult(
         requestCode: Int,
         permissions: Array<out String>,
-        grantResults: IntArray
+        grantResults: IntArray,
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if (requestCode == REQUEST_CODE)
             permissionGranted = grantResults[0] == PackageManager.PERMISSION_GRANTED
-    }
-
-    companion object {
-        const val REQUEST_CODE = 200
     }
 }
