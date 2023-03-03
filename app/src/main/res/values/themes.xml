@@ -25,4 +25,35 @@
         <item name="boxCornerRadiusTopEnd">16dp</item>
         <item name="boxCornerRadiusTopStart">16dp</item>
     </style>
+
+    <style name="CustomCollapsingToolbarLayout" >
+        <item name="fontFamily">@font/vk_sans_display_demi_bold</item>
+    </style>
+
+    <style name="AppBarLayoutCornerRadiusStyle">
+        <item name="boxCornerRadiusBottomStart">16dp</item>
+        <item name="boxCornerRadiusBottomEnd">16dp</item>
+        <item name="boxCornerRadiusTopEnd">16dp</item>
+        <item name="boxCornerRadiusTopStart">16dp</item>
+    </style>
+
+    <style name="CenterGravityStyle">
+        <item name="titleCentered">true</item>
+    </style>
+    
+    <style name="SearchNoteStyle" parent="Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+        <item name="boxBackgroundColor">@color/light_soft_gray</item>
+        <item name="boxStrokeWidth">0dp</item>
+        <item name="boxStrokeWidthFocused">0dp</item>
+        <item name="android:layout_margin">16dp</item>
+        <item name="boxCornerRadiusBottomStart">16dp</item>
+        <item name="boxCornerRadiusBottomEnd">16dp</item>
+        <item name="boxCornerRadiusTopEnd">16dp</item>
+        <item name="boxCornerRadiusTopStart">16dp</item>
+        <item name="endIconMode">clear_text</item>
+        <item name="startIconDrawable">@drawable/ic_search</item>
+
+    </style>
+
+
 </resources>

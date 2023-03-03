@@ -25,4 +25,9 @@
         <item name="boxCornerRadiusTopEnd">16dp</item>
         <item name="boxCornerRadiusTopStart">16dp</item>
     </style>
+
+    <style name="CustomCollapsingToolbarLayout" >
+        <item name="fontFamily">@font/vk_sans_display_demi_bold</item>
+    </style>
+
 </resources>
