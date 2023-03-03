@@ -1,7 +1,6 @@
 package com.example.voicenotes.utils
 
 import android.Manifest
-import android.app.Activity
 import android.content.Context
 import android.content.pm.PackageManager
 import android.view.View
@@ -12,7 +11,7 @@ import androidx.core.app.ActivityCompat
 
 private var permission = arrayOf(Manifest.permission.RECORD_AUDIO)
 
-fun AppCompatActivity.showToast(context: Context, text: String) {
+fun AppCompatActivity.showToast(text: String) {
     Toast.makeText(this, text, Toast.LENGTH_LONG).show()
 }
 
@@ -21,12 +20,21 @@ fun AppCompatActivity.hideKeyboard(view: View) {
     km.hideSoftInputFromWindow(view.windowToken, 0)
 }
 
-fun AppCompatActivity.showAudioPermissionDialog(activity: Activity, requestCode: Int) {
+fun AppCompatActivity.showAudioPermissionDialog(requestCode: Int) {
     ActivityCompat.requestPermissions(this, permission, requestCode)
 }
 
-fun AppCompatActivity.isAudioPermissionGranted(activity: Activity): Boolean {
+fun AppCompatActivity.isAudioPermissionGranted(): Boolean {
     return ActivityCompat.checkSelfPermission(
         this, permission[0]
     ) == PackageManager.PERMISSION_GRANTED
 }
+
+fun filePath(dirPath: String, fileName: String): String {
+    return dirPath+fileName+MP3
+}
+
+fun returnDefaultFileName(date: String) = AUDIO_RECORD_ + date
+
+private const val MP3 = ".mp3"
+private const val AUDIO_RECORD_ = "note_"

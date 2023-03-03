@@ -5,6 +5,7 @@ import android.media.MediaRecorder
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.util.Log
 import android.view.View
 import android.widget.LinearLayout
 import androidx.appcompat.app.AppCompatActivity
@@ -13,6 +14,7 @@ import com.example.voicenotes.R
 import com.example.voicenotes.app.NoteListApp
 import com.example.voicenotes.databinding.ActivityMainBinding
 import com.example.voicenotes.utils.*
+import com.example.voicenotes.utils.Constants.FULL_DATE_PATTERN
 import com.example.voicenotes.utils.Constants.REQUEST_CODE
 import com.example.voicenotes.utils.Timer
 import com.example.voicenotes.vm.NoteItemViewModel
@@ -25,7 +27,6 @@ import java.util.*
 import javax.inject.Inject
 
 class MainActivity : AppCompatActivity(), Timer.TimerTickListener {
-
     @Inject
     lateinit var viewModelFactory: ViewModelFactory
 
@@ -63,8 +64,8 @@ class MainActivity : AppCompatActivity(), Timer.TimerTickListener {
     }
 
     private fun requestAudioPermission() {
-        if (!isAudioPermissionGranted(activityContext))
-            showAudioPermissionDialog(activityContext, REQUEST_CODE)
+        if (!isAudioPermissionGranted())
+            showAudioPermissionDialog(REQUEST_CODE)
     }
 
     private fun init() {
@@ -85,13 +86,11 @@ class MainActivity : AppCompatActivity(), Timer.TimerTickListener {
         }
 
         buttonShowList.setOnClickListener {
-            showToast(activityContext, "button list")
             startActivity(NotesActivity.newIntentOpenNotesActivity(activityContext))
         }
 
         buttonDone.setOnClickListener {
             stopRecord()
-            showToast(activityContext, "Record saved")
             bottomSheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
             bottomMenuBackground.visibility = View.VISIBLE
             binding.bottomMenuId.inputFileName.setText(filename)
@@ -99,12 +98,12 @@ class MainActivity : AppCompatActivity(), Timer.TimerTickListener {
 
         buttonDelete.setOnClickListener {
             stopRecord()
-            File("$dirPath$filename.mp3").delete()
-            showToast(activityContext, "Record deleted")
+            File(filePath(dirPath, filename)).delete()
+            showToast("Record deleted")
         }
 
         bottomMenuId.buttonDeleteOnBottomMenu.setOnClickListener {
-            File("$dirPath$filename.mp3").delete()
+            File(filePath(dirPath, filename)).delete()
             dismiss()
         }
         bottomMenuId.buttonSaveOnBottomMenu.setOnClickListener {
@@ -113,29 +112,29 @@ class MainActivity : AppCompatActivity(), Timer.TimerTickListener {
         }
 
         bottomMenuBackground.setOnClickListener {
-            File("$dirPath$filename.mp3").delete()
+            File(filePath(dirPath, filename)).delete()
             dismiss()
         }
         buttonDelete.isClickable = false
     }
 
     private fun startRecord() = with(binding) {
-        if (!isAudioPermissionGranted(activityContext)) {
-            showAudioPermissionDialog(activityContext, REQUEST_CODE)
+        if (!isAudioPermissionGranted()) {
+            showAudioPermissionDialog(REQUEST_CODE)
             return
         }
         recorder = MediaRecorder()
         dirPath = "${externalCacheDir?.absolutePath}/"
 
-        val sdf = SimpleDateFormat("yyyy.MM.DD_hh.mm.ss", Locale.getDefault())
+        val sdf = SimpleDateFormat(FULL_DATE_PATTERN, Locale.getDefault())
         date = sdf.format(Date())
 
-        filename = "audio_record_$date"
+        filename = returnDefaultFileName(date)
         recorder.apply {
             setAudioSource(MediaRecorder.AudioSource.MIC)
             setOutputFormat(MediaRecorder.OutputFormat.MPEG_4)
             setAudioEncoder(MediaRecorder.AudioEncoder.AAC)
-            setOutputFile("$dirPath$filename.mp3")
+            setOutputFile(filePath(dirPath, filename))
             try {
                 prepare()
             } catch (_: IOException) {}
@@ -153,7 +152,6 @@ class MainActivity : AppCompatActivity(), Timer.TimerTickListener {
         buttonShowList.visibility= View.GONE
         buttonDone.visibility= View.VISIBLE
 
-
     }
     private fun pauseRecord() {
         recorder.pause()
@@ -170,7 +168,6 @@ class MainActivity : AppCompatActivity(), Timer.TimerTickListener {
     }
     private fun stopRecord() = with(binding) {
         timer.stop()
-
         recorder.apply {
             stop()
             release()
@@ -183,9 +180,7 @@ class MainActivity : AppCompatActivity(), Timer.TimerTickListener {
         buttonDelete.isClickable = false
         buttonDelete.setImageResource(R.drawable.ic_delete_disabled)
         buttonRecord.setImageResource(R.drawable.ic_mic)
-
     }
-
     private fun dismiss() = with(binding) {
         bottomMenuBackground.visibility = View.GONE
         Handler(Looper.getMainLooper()).postDelayed({
@@ -198,22 +193,20 @@ class MainActivity : AppCompatActivity(), Timer.TimerTickListener {
         val newFileName = binding.bottomMenuId.inputFileName.text.toString()
 
         if (newFileName != filename) {
-            val newFile = File("$dirPath$newFileName.mp3")
-            File("$dirPath$filename.mp3").renameTo(newFile)
+            val newFile = File(filePath(dirPath, newFileName))
+            File(filePath(dirPath, filename)).renameTo(newFile)
         }
-        val filePath = "$dirPath$newFileName.mp3"
+        val filePath = filePath(dirPath, newFileName)
         viewModel.addNoteItem(
-            fileName = filename,
+            fileName = newFileName,
             timesTamp = date,
             duration = "sample",
             filePath = filePath
         )
     }
-
     override fun timerTick(duration: String) {
         binding.tvTimer.text = duration
     }
-
     override fun onRequestPermissionsResult(
         requestCode: Int,
         permissions: Array<out String>,
@@ -223,6 +216,4 @@ class MainActivity : AppCompatActivity(), Timer.TimerTickListener {
         if (requestCode == REQUEST_CODE)
             permissionGranted = grantResults[0] == PackageManager.PERMISSION_GRANTED
     }
-
-
 }
