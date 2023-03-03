@@ -1,16 +1,11 @@
 package com.example.domain.repository
 
+import androidx.lifecycle.LiveData
 import com.example.domain.entity.NoteEntity
 
-
 interface NoteListRepository {
-
-    fun addNote(noteEntity: NoteEntity)
-
-    fun deleteNote(noteEntity: NoteEntity)
-
-    fun getNote(noteEntityId: Int): NoteEntity
-
-    fun getNoteList(): List<NoteEntity>
-
+    suspend fun addNote(noteEntity: NoteEntity)
+    suspend fun deleteNotes(noteList: List<NoteEntity>)
+    suspend fun getNote(noteId: Int): NoteEntity
+    fun getNoteList(): LiveData<List<NoteEntity>>
 }
