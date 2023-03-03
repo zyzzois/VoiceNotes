@@ -6,7 +6,9 @@ data class NoteEntity(
     val timesTamp: String,
     val duration: String,
     var id: Int = UNDEFINED_ID,
-    var filepath: String
+    var filepath: String,
+    var isPlaying: Boolean = false,
+    var isChecked: Boolean = false
 ) {
     companion object{
         const val UNDEFINED_ID = 0

@@ -17,11 +17,17 @@ class MainViewModel @Inject constructor(
     private val getNoteUseCase: GetNoteUseCase
 ): ViewModel() {
 
+    val noteList = getNoteListUseCase()
+
     private val _noteItemEntity = MutableLiveData<NoteEntity>()
     val noteItemEntity: LiveData<NoteEntity>
         get() = _noteItemEntity
 
-    val noteList = getNoteListUseCase()
+    private val _nowSomeNoteIsPlaying = MutableLiveData<Boolean>()
+    val nowSomeNoteIsPlaying: LiveData<Boolean>
+        get() = _nowSomeNoteIsPlaying
+
+
 
     fun deleteNotes(noteList: List<NoteEntity>) {
         viewModelScope.launch {
@@ -36,5 +42,7 @@ class MainViewModel @Inject constructor(
         }
         return noteItemEntity.value
     }
+
+
 
 }

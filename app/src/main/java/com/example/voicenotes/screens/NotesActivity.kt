@@ -5,9 +5,10 @@ import android.content.Intent
 import android.media.MediaPlayer
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import androidx.core.content.res.ResourcesCompat
+import android.text.Editable
+import android.text.TextWatcher
 import androidx.lifecycle.ViewModelProvider
-import com.example.voicenotes.R
+import com.example.domain.entity.NoteEntity
 import com.example.voicenotes.app.NoteListApp
 import com.example.voicenotes.databinding.ActivityNotesBinding
 import com.example.voicenotes.recycler.NoteListAdapter
@@ -33,29 +34,32 @@ class NotesActivity : AppCompatActivity() {
         ViewModelProvider(this, viewModelFactory)[MainViewModel::class.java]
     }
 
-    private val mediaPlayer by lazy {
-        MediaPlayer()
-    }
-
     private lateinit var noteListAdapter: NoteListAdapter
+    private lateinit var deleteList: MutableList<NoteEntity>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         component.inject(this)
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
         setupRecyclerView()
-        buttonsActions()
+        searchNoteAction()
     }
 
-    private fun buttonsActions() {
-        binding.buttonAddNote.setOnClickListener {
-            startActivity(Intent(this, MainActivity::class.java))
-        }
+    private fun searchNoteAction() {
+        binding.editTextSearchNote.addTextChangedListener(object : TextWatcher{
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+
+            }
+
+            override fun afterTextChanged(s: Editable?) {}
+        })
     }
 
     private fun setupRecyclerView() {
         with(binding.rcView) {
-            noteListAdapter = NoteListAdapter()
+            noteListAdapter = NoteListAdapter(this@NotesActivity)
             adapter = noteListAdapter
         }
         viewModel.noteList.observe(this) {
@@ -66,46 +70,34 @@ class NotesActivity : AppCompatActivity() {
 
     private fun setupClickListener() = with(noteListAdapter) {
         onNoteItemClickListener = {
-            val intent = PlayerActivity.newIntentStartPlayer(
-                this@NotesActivity,
-                it.filepath,
-                it.fileName
-            )
-            startActivity(intent)
-        }
-        onNoteItemLongClickListener = {
-            showToast("long click")
-        }
-        onNoteItemPlayButtonCLickListener = {
-
-            mediaPlayer.apply {
-                setDataSource(it.filepath)
-                prepare()
+            if (isEditMode()) {
+                val position = currentList.indexOf(it)
+                currentList[position].isChecked = !currentList[position].isChecked
+                notifyItemChanged(position)
+            } else {
+                val intent = PlayerActivity.newIntentStartPlayer(
+                    this@NotesActivity,
+                    it.filepath,
+                    it.fileName
+                )
+                startActivity(intent)
             }
+        }
+
+        onNoteItemLongClickListener = {
+            val position = currentList.indexOf(it)
+            showToast("$position")
+            setEditMode(true)
+            currentList[position].isChecked = !currentList[position].isChecked
+            notifyItemChanged(position)
+//            deleteList = mutableListOf()
+//            deleteList.add(it)
+//            noteListAdapter.runDeleteMode(true)
+//            viewModel.deleteNotes(deleteList)
         }
     }
 
-//    private fun playOrStopNote() = with(binding) {
-//
-//        if (!mediaPlayer.isPlaying) {
-//            mediaPlayer.start()
-//
-//            buttonPlayerPlayStop.background = ResourcesCompat.getDrawable(
-//                resources,
-//                R.drawable.ic_round_pause_circle,
-//                theme
-//            )
-//            handler.postDelayed(runnable, delay)
-//        } else {
-//            mediaPlayer.pause()
-//            buttonPlayerPlayStop.background = ResourcesCompat.getDrawable(
-//                resources,
-//                R.drawable.ic_round_play_circle,
-//                theme
-//            )
-//            handler.removeCallbacks(runnable)
-//        }
-//    }
+
 
 
     companion object {

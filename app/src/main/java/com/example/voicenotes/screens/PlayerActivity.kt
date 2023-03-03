@@ -47,14 +47,7 @@ class PlayerActivity : AppCompatActivity() {
         component.inject(this)
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
-
-        setSupportActionBar(binding.toolbar)
-        supportActionBar?.setDisplayHomeAsUpEnabled(true)
-        supportActionBar?.setDisplayShowHomeEnabled(true)
-        binding.toolbar.setNavigationOnClickListener {
-            onBackPressed()
-        }
-
+        setupCustomToolbar()
         val filePath = intent.getStringExtra(EXTRA_FILE_PATH)
         val fileName = intent.getStringExtra(EXTRA_FILE_NAME)
         binding.tvPlayerNoteTitle.text = fileName
@@ -65,8 +58,6 @@ class PlayerActivity : AppCompatActivity() {
         }
 
         binding.tvDuration.text = convertDate(mediaPlayer.duration)
-
-
         handler = Handler(Looper.getMainLooper())
         runnable = Runnable {
             binding.seekBar.progress = mediaPlayer.currentPosition
@@ -105,7 +96,6 @@ class PlayerActivity : AppCompatActivity() {
     }
 
     private fun playOrStopNote() = with(binding) {
-
         if (!mediaPlayer.isPlaying) {
             mediaPlayer.start()
             if (mediaPlayer.audioSessionId != -1)
@@ -135,20 +125,25 @@ class PlayerActivity : AppCompatActivity() {
         val hours = ((tmp - minutes*60)/360).toInt()
         val formatted: NumberFormat = DecimalFormat("00")
         var str = "$minutes:${formatted.format(seconds)}"
-
         if (hours > 0)
             str = "$hours:$str"
-
         return str
-
     }
-
     override fun onBackPressed() {
         super.onBackPressed()
         mediaPlayer.stop()
         mediaPlayer.release()
         handler.removeCallbacks(runnable)
     }
+    private fun setupCustomToolbar() {
+        setSupportActionBar(binding.toolbar)
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        supportActionBar?.setDisplayShowHomeEnabled(true)
+        binding.toolbar.setNavigationOnClickListener {
+            onBackPressed()
+        }
+    }
+
 
     companion object {
         private const val EXTRA_FILE_NAME = "extra_file_name"

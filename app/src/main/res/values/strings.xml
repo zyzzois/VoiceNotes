@@ -8,4 +8,5 @@
     <string name="deleteText">Удалить</string>
     <string name="OkText">Ок</string>
     <string name="note_title_text">Заголовок заметки:</string>
+    <string name="searchNoteHint">я помогу найти заметку</string>
 </resources>
