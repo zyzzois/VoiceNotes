@@ -8,25 +8,23 @@ import com.example.domain.entity.NoteEntity
 import com.example.domain.usecase.DeleteNotesUseCase
 import com.example.domain.usecase.GetNoteListUseCase
 import com.example.domain.usecase.GetNoteUseCase
+import com.example.domain.usecase.SearchInDatabaseUseCase
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 class MainViewModel @Inject constructor(
     private val deleteNoteItemUseCase: DeleteNotesUseCase,
     private val getNoteListUseCase: GetNoteListUseCase,
-    private val getNoteUseCase: GetNoteUseCase
+    private val getNoteUseCase: GetNoteUseCase,
+    private val searchInDatabaseUseCase: SearchInDatabaseUseCase
 ): ViewModel() {
 
     val noteList = getNoteListUseCase()
 
-    private val _noteItemEntity = MutableLiveData<NoteEntity>()
-    val noteItemEntity: LiveData<NoteEntity>
-        get() = _noteItemEntity
 
-    private val _nowSomeNoteIsPlaying = MutableLiveData<Boolean>()
-    val nowSomeNoteIsPlaying: LiveData<Boolean>
-        get() = _nowSomeNoteIsPlaying
-
+    private val _searchedQueryList = MutableLiveData<List<NoteEntity>>()
+    val searchedQueryList: LiveData<List<NoteEntity>>
+        get() = _searchedQueryList
 
 
     fun deleteNotes(noteList: List<NoteEntity>) {
@@ -35,14 +33,11 @@ class MainViewModel @Inject constructor(
         }
     }
 
-    fun getNoteItemById(noteId: Int): NoteEntity? {
+
+    fun searchInDataBase(query: String) {
         viewModelScope.launch {
-            val item = getNoteUseCase(noteId)
-            _noteItemEntity.value = item
+            _searchedQueryList.value = searchInDatabaseUseCase(query)
         }
-        return noteItemEntity.value
     }
-
-
 
 }
