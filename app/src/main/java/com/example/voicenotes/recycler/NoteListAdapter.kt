@@ -5,6 +5,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.content.res.AppCompatResources
+import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.example.domain.entity.NoteEntity
@@ -13,6 +14,18 @@ import com.example.voicenotes.databinding.ListitemBinding
 import java.text.SimpleDateFormat
 
 class NoteListAdapter(private val context: Context): ListAdapter<NoteEntity, NoteListAdapter.NoteItemViewHolder>(NoteItemDiffCallBack) {
+
+    private var editMode = false
+
+    fun setEditMode(mode: Boolean) {
+        if (editMode != mode) {
+            editMode = mode
+            notifyDataSetChanged()
+        }
+    }
+
+
+    fun isEditMode() = editMode
 
     var onNoteItemLongClickListener: ((NoteEntity) -> Unit) ? = null
     var onNoteItemClickListener: ((NoteEntity) -> Unit)? = null
@@ -40,9 +53,19 @@ class NoteListAdapter(private val context: Context): ListAdapter<NoteEntity, Not
             }
 
 
+            if (editMode) {
+                checkBox.visibility = View.VISIBLE
+                buttonPlay.visibility = View.GONE
+            } else {
+                checkBox.visibility = View.GONE
+                buttonPlay.visibility = View.VISIBLE
+            }
+            checkBox.isChecked = noteItem.isChecked
 
         }
     }
+
+
 
     inner class NoteItemViewHolder(val binding: ListitemBinding):
         RecyclerView.ViewHolder(binding.root)

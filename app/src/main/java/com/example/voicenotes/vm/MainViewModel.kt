@@ -21,6 +21,9 @@ class MainViewModel @Inject constructor(
 
     val noteList = getNoteListUseCase()
 
+    private val _isEditMode = MutableLiveData<Boolean>()
+    val isEditMode: LiveData<Boolean>
+        get() = _isEditMode
 
     private val _searchedQueryList = MutableLiveData<List<NoteEntity>>()
     val searchedQueryList: LiveData<List<NoteEntity>>
@@ -38,6 +41,10 @@ class MainViewModel @Inject constructor(
         viewModelScope.launch {
             _searchedQueryList.value = searchInDatabaseUseCase(query)
         }
+    }
+
+    fun setEditMode(mode: Boolean) {
+        _isEditMode.value = true
     }
 
 }

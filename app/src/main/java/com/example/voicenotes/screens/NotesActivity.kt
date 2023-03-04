@@ -88,9 +88,13 @@ class NotesActivity : AppCompatActivity() {
         }
 
         onNoteItemLongClickListener = {
-
-
+            //viewModel.setEditMode(true)
+            val pos = currentList.indexOf(it)
+            noteListAdapter.setEditMode(true)
+            currentList[pos].isChecked = !currentList[pos].isChecked
         }
+
+
     }
 
 
