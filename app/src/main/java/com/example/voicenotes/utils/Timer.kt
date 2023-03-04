@@ -33,7 +33,7 @@ class Timer(listener: TimerTickListener) {
 
     fun stop() {
         handler.removeCallbacks(runnable)
-        duration = 0
+        duration = 0L
     }
 
     private fun format(): String {
@@ -45,7 +45,7 @@ class Timer(listener: TimerTickListener) {
         return if (hours > 0)
             "%02d:%02d:%02d.%02d".format(hours, minutes, seconds, milliseconds/10)
         else
-            "%02d:%02d.%02d".format(hours, minutes, seconds, milliseconds)
+            "%02d:%02d.%02d".format(minutes, seconds, milliseconds/100)
     }
 
 }

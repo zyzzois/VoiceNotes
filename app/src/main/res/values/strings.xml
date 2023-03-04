@@ -9,4 +9,5 @@
     <string name="OkText">Ок</string>
     <string name="note_title_text">Заголовок заметки:</string>
     <string name="searchNoteHint">я помогу найти заметку</string>
+    <string name="defaultTimerText">00:00.0</string>
 </resources>

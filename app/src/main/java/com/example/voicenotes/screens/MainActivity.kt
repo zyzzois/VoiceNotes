@@ -1,14 +1,14 @@
 package com.example.voicenotes.screens
 
+import android.content.Context
 import android.content.pm.PackageManager
+import android.content.res.Resources
 import android.media.MediaRecorder
-import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
-import android.util.Log
+import android.os.*
 import android.view.View
 import android.widget.LinearLayout
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
 import com.example.voicenotes.R
 import com.example.voicenotes.app.NoteListApp
@@ -42,7 +42,14 @@ class MainActivity : AppCompatActivity(), Timer.TimerTickListener {
     private val timer by lazy {
         Timer(this)
     }
+    private val vibrator by lazy {
+        getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
+    }
 
+
+    private var durationInMillis = 0L
+    private var startTime = 0L
+    private var endTime = 0L
     private var permissionGranted = false
     private lateinit var recorder: MediaRecorder
     private var dirPath = ""
@@ -81,8 +88,15 @@ class MainActivity : AppCompatActivity(), Timer.TimerTickListener {
             when {
                 isPaused -> resumeRecord()
                 isRecording -> pauseRecord()
-                else -> startRecord()
+                else -> {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
+                        vibrator.vibrate(VibrationEffect.createOneShot(100, VibrationEffect.DEFAULT_AMPLITUDE));
+                    else
+                        vibrator.vibrate(100);
+                    startRecord()
+                }
             }
+
         }
 
         buttonShowList.setOnClickListener {
@@ -99,12 +113,15 @@ class MainActivity : AppCompatActivity(), Timer.TimerTickListener {
         buttonDelete.setOnClickListener {
             stopRecord()
             File(filePath(dirPath, filename)).delete()
-            showToast("Record deleted")
+            tvTimer.text = "00:00.0"
+            showToast("Запись отменена")
         }
 
         bottomMenuId.buttonDeleteOnBottomMenu.setOnClickListener {
             File(filePath(dirPath, filename)).delete()
+            tvTimer.text = "00:00.0"
             dismiss()
+            showToast("Запись удалена")
         }
         bottomMenuId.buttonSaveOnBottomMenu.setOnClickListener {
             dismiss()
@@ -138,7 +155,7 @@ class MainActivity : AppCompatActivity(), Timer.TimerTickListener {
             try {
                 prepare()
             } catch (_: IOException) {}
-
+            startTime = System.currentTimeMillis()
             start()
         }
         buttonRecord.setImageResource(R.drawable.ic_pause)
@@ -168,6 +185,9 @@ class MainActivity : AppCompatActivity(), Timer.TimerTickListener {
     }
     private fun stopRecord() = with(binding) {
         timer.stop()
+        endTime = System.currentTimeMillis()
+        durationInMillis = endTime - startTime
+
         recorder.apply {
             stop()
             release()
@@ -191,7 +211,6 @@ class MainActivity : AppCompatActivity(), Timer.TimerTickListener {
 
     private fun saveNote() {
         val newFileName = binding.bottomMenuId.inputFileName.text.toString()
-
         if (newFileName != filename) {
             val newFile = File(filePath(dirPath, newFileName))
             File(filePath(dirPath, filename)).renameTo(newFile)
@@ -200,9 +219,10 @@ class MainActivity : AppCompatActivity(), Timer.TimerTickListener {
         viewModel.addNoteItem(
             fileName = newFileName,
             timesTamp = date,
-            duration = "sample",
+            duration = durationInMillis,
             filePath = filePath
         )
+        binding.tvTimer.text = "00:00.0"
     }
     override fun timerTick(duration: String) {
         binding.tvTimer.text = duration

@@ -26,6 +26,13 @@ class NoteListRepositoryImpl @Inject constructor(
         return mapper.mapDbModelToEntity(dbModel)
     }
 
+    override suspend fun searchInDatabase(query: String): List<NoteEntity> {
+        val searchedList = noteListDao.searchInDatabase(query)
+        return searchedList.map {
+            mapper.mapDbModelToEntity(it)
+        }
+    }
+
     override fun getNoteList(): LiveData<List<NoteEntity>> = Transformations.map(
         noteListDao.getVoiceNoteList()
     ) {

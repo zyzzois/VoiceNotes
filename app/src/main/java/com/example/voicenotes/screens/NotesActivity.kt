@@ -7,6 +7,7 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
+import android.util.Log
 import androidx.lifecycle.ViewModelProvider
 import com.example.domain.entity.NoteEntity
 import com.example.voicenotes.app.NoteListApp
@@ -50,11 +51,19 @@ class NotesActivity : AppCompatActivity() {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
 
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-
+                val query = s.toString()
+                searchInDb(query)
             }
 
             override fun afterTextChanged(s: Editable?) {}
         })
+    }
+
+    private fun searchInDb(query: String) {
+        viewModel.searchInDataBase("%$query%")
+        viewModel.searchedQueryList.observe(this) {
+            noteListAdapter.submitList(it)
+        }
     }
 
     private fun setupRecyclerView() {
@@ -70,34 +79,19 @@ class NotesActivity : AppCompatActivity() {
 
     private fun setupClickListener() = with(noteListAdapter) {
         onNoteItemClickListener = {
-            if (isEditMode()) {
-                val position = currentList.indexOf(it)
-                currentList[position].isChecked = !currentList[position].isChecked
-                notifyItemChanged(position)
-            } else {
-                val intent = PlayerActivity.newIntentStartPlayer(
-                    this@NotesActivity,
-                    it.filepath,
-                    it.fileName
-                )
-                startActivity(intent)
-            }
+            val intent = PlayerActivity.newIntentStartPlayer(
+                this@NotesActivity,
+                it.filepath,
+                it.fileName
+            )
+            startActivity(intent)
         }
 
         onNoteItemLongClickListener = {
-            val position = currentList.indexOf(it)
-            showToast("$position")
-            setEditMode(true)
-            currentList[position].isChecked = !currentList[position].isChecked
-            notifyItemChanged(position)
-//            deleteList = mutableListOf()
-//            deleteList.add(it)
-//            noteListAdapter.runDeleteMode(true)
-//            viewModel.deleteNotes(deleteList)
+
+
         }
     }
-
-
 
 
     companion object {

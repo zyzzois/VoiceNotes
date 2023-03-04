@@ -12,6 +12,9 @@ interface NoteDao {
     @Query("SELECT * FROM voiceNotes WHERE id=:noteId LIMIT 1")
     suspend fun getShopItem(noteId: Int): NoteModelDb
 
+    @Query("SELECT * FROM voiceNotes WHERE filename LIKE :query")
+    suspend fun searchInDatabase(query: String): List<NoteModelDb>
+
     @Insert
     suspend fun insertNewVoiceNote(voiceNote: NoteModelDb)
 
