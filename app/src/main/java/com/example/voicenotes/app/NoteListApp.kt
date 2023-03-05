@@ -17,9 +17,7 @@ class NoteListApp: Application() {
     }
 
     private val tokenTracker = object: VKTokenExpiredHandler {
-        override fun onTokenExpired() {
-
-        }
+        override fun onTokenExpired() { }
     }
 
 }

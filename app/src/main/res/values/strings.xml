@@ -18,4 +18,5 @@
     <string name="msg_asking_to_delete">Удалить заметку?</string>
     <string name="delete">Удалить</string>
     <string name="cancel">Оставить</string>
+    <string name="auth_via_vk_id">auth via vk identificator</string>
 </resources>

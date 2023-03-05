@@ -7,109 +7,69 @@ import com.vk.api.sdk.VKHttpPostCall
 import com.vk.api.sdk.VKMethodCall
 import com.vk.api.sdk.exceptions.VKApiIllegalResponseException
 import com.vk.api.sdk.internal.ApiCommand
+import com.vk.api.sdk.internal.HttpMultipartEntry
 import org.json.JSONException
 import org.json.JSONObject
 import java.util.concurrent.TimeUnit
 
 class VKWallPostCommand(
     private val message: String? = null,
-    private val photos: List<Uri> = listOf(),
+    private val file: Uri,
+    private val fileName: String,
     private val ownerId: Int = 0,
-    private val friendsOnly: Boolean = false,
-    private val fromGroup: Boolean = false
-): ApiCommand<Int>() {
+): ApiCommand<VKServerUploadInfo2>() {
 
-    override fun onExecute(manager: VKApiManager): Int {
+    override fun onExecute(manager: VKApiManager): VKServerUploadInfo2 {
         val callBuilder = VKMethodCall.Builder()
-            .method("wall.post")
-            .args("friends_only", if (friendsOnly) 1 else 0)
-            .args("from_group", if (fromGroup) 1 else 0)
+            .method("docs.save")
             .version(manager.config.version)
         message?.let {
             callBuilder.args("message", it)
         }
 
-        if (ownerId != 0) {
+        if (ownerId != 0)
             callBuilder.args("owner_id", ownerId)
-        }
 
-        if (photos.isNotEmpty()) {
-            val uploadInfo = getServerUploadInfo(manager)
-            val attachments = photos.map { uploadPhoto(it, uploadInfo, manager) }
-
-            callBuilder.args("attachments", attachments.joinToString(","))
-        }
-
-        return manager.execute(callBuilder.build(), ResponseApiParser())
+        val uploadInfo = getServerUploadInfo(manager)
+        val attachments = uploadFile(
+            uri = file,
+            fileName = fileName,
+            serverUploadInfo = uploadInfo,
+            manager
+        )
+        callBuilder.args("attachments", attachments)
+        return manager.execute(callBuilder.build(), CustomParser())
     }
 
-    private fun getServerUploadInfo(manager: VKApiManager): VKServerUploadInfo {
+    private fun getServerUploadInfo(manager: VKApiManager): VKServerUploadInfo2 {
         val uploadInfoCall = VKMethodCall.Builder()
-            .method("photos.getWallUploadServer")
+            .method("docs.getUploadServer")
             .version(manager.config.version)
             .build()
-        return manager.execute(uploadInfoCall, ServerUploadInfoParser())
+        return manager.execute(uploadInfoCall, CustomParser())
     }
 
-    private fun uploadPhoto(uri: Uri, serverUploadInfo: VKServerUploadInfo, manager: VKApiManager): String {
+    private fun uploadFile(uri: Uri, fileName: String, serverUploadInfo: VKServerUploadInfo2, manager: VKApiManager): String {
         val fileUploadCall = VKHttpPostCall.Builder()
             .url(serverUploadInfo.uploadUrl)
-            .args("photo", uri, "image.jpg")
+            .args("file", uri, fileName)
             .timeout(TimeUnit.MINUTES.toMillis(5))
-            .retryCount(RETRY_COUNT)
+            .retryCount(3)
             .build()
         val fileUploadInfo = manager.execute(fileUploadCall, null, FileUploadInfoParser())
-
         val saveCall = VKMethodCall.Builder()
-            .method("photos.saveWallPhoto")
-            .args("server", fileUploadInfo.server)
-            .args("photo", fileUploadInfo.photo)
-            .args("hash", fileUploadInfo.hash)
+            .method("docs.save")
+            .args("file", fileUploadInfo.file)
             .version(manager.config.version)
             .build()
-
         val saveInfo = manager.execute(saveCall, SaveInfoParser())
-
         return saveInfo.getAttachment()
     }
 
-    companion object {
-        const val RETRY_COUNT = 3
-    }
-
-    private class ResponseApiParser : VKApiJSONResponseParser<Int> {
-        override fun parse(responseJson: JSONObject): Int {
+    private class FileUploadInfoParser: VKApiJSONResponseParser<VKFileUploadInfo2> {
+        override fun parse(responseJson: JSONObject): VKFileUploadInfo2 {
             try {
-                return responseJson.getJSONObject("response").getInt("post_id")
-            } catch (ex: JSONException) {
-                throw VKApiIllegalResponseException(ex)
-            }
-        }
-    }
-
-    private class ServerUploadInfoParser : VKApiJSONResponseParser<VKServerUploadInfo> {
-        override fun parse(responseJson: JSONObject): VKServerUploadInfo{
-            try {
-                val joResponse = responseJson.getJSONObject("response")
-                return VKServerUploadInfo(
-                    uploadUrl = joResponse.getString("upload_url"),
-                    albumId = joResponse.getInt("album_id"),
-                    userId = joResponse.getInt("user_id"))
-            } catch (ex: JSONException) {
-                throw VKApiIllegalResponseException(ex)
-            }
-        }
-    }
-
-    private class FileUploadInfoParser: VKApiJSONResponseParser<VKFileUploadInfo> {
-        override fun parse(responseJson: JSONObject): VKFileUploadInfo{
-            try {
-                val joResponse = responseJson
-                return VKFileUploadInfo(
-                    server = joResponse.getString("server"),
-                    photo = joResponse.getString("photo"),
-                    hash = joResponse.getString("hash")
-                )
+                return VKFileUploadInfo2(file = responseJson.getString("file"))
             } catch (ex: JSONException) {
                 throw VKApiIllegalResponseException(ex)
             }
@@ -120,14 +80,24 @@ class VKWallPostCommand(
         override fun parse(responseJson: JSONObject): VKSaveInfo {
             try {
                 val joResponse = responseJson.getJSONArray("response").getJSONObject(0)
-                return VKSaveInfo(
-                    id = joResponse.getInt("id"),
-                    albumId = joResponse.getInt("album_id"),
-                    ownerId = joResponse.getInt("owner_id")
+                return VKSaveInfo(fileName = joResponse.toString())
+            } catch (ex: JSONException) {
+                throw VKApiIllegalResponseException(ex)
+            }
+        }
+    }
+
+    private class CustomParser : VKApiJSONResponseParser<VKServerUploadInfo2> {
+        override fun parse(responseJson: JSONObject): VKServerUploadInfo2 {
+            try {
+                val joResponse = responseJson.getJSONObject("response")
+                return VKServerUploadInfo2(
+                    uploadUrl = joResponse.getString("upload_url")
                 )
             } catch (ex: JSONException) {
                 throw VKApiIllegalResponseException(ex)
             }
         }
     }
+
 }

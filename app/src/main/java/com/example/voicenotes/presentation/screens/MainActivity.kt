@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.pm.PackageManager
 import android.media.MediaRecorder
 import android.os.*
+import android.util.Log
 import android.view.View
 import androidx.activity.ComponentActivity
 import androidx.appcompat.app.AppCompatActivity
@@ -11,15 +12,17 @@ import androidx.lifecycle.ViewModelProvider
 import com.example.voicenotes.R
 import com.example.voicenotes.app.NoteListApp
 import com.example.voicenotes.databinding.ActivityMainBinding
+import com.example.voicenotes.presentation.vm.NoteItemViewModel
+import com.example.voicenotes.presentation.vm.ViewModelFactory
 import com.example.voicenotes.utils.*
 import com.example.voicenotes.utils.Constants.FULL_DATE_PATTERN
 import com.example.voicenotes.utils.Constants.REQUEST_CODE
 import com.example.voicenotes.utils.Timer
+import com.example.voicenotes.vkid.VKServerUploadInfo2
 import com.example.voicenotes.vkid.VKWallPostCommand
-import com.example.voicenotes.presentation.vm.NoteItemViewModel
-import com.example.voicenotes.presentation.vm.ViewModelFactory
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.vk.api.sdk.VK
+import com.vk.api.sdk.VKApiCallback
 import com.vk.api.sdk.auth.VKAuthenticationResult
 import com.vk.api.sdk.auth.VKScope
 import java.io.File
@@ -38,7 +41,7 @@ class MainActivity : AppCompatActivity(), Timer.TimerTickListener {
 
     private val defaultTimerText by lazy { resources.getString(R.string.defaultTimeText) }
     private val successAuthMsg by lazy { resources.getString(R.string.succesAuthMsg) }
-    private val failedAuthMsg by lazy { resources.getString(R.string.succesAuthMsg) }
+    private val failedAuthMsg by lazy { resources.getString(R.string.failedAuthMsg) }
     private val noteDeletedMsg by lazy { resources.getString(R.string.msg_note_deleted) }
     private val noteCanceledMsg by lazy { resources.getString(R.string.msg_note_canceled) }
 

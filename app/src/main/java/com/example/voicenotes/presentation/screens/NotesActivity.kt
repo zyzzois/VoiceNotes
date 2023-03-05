@@ -2,12 +2,15 @@ package com.example.voicenotes.presentation.screens
 
 import android.content.Context
 import android.content.Intent
+import android.net.Uri
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
+import android.util.Log
 import android.view.View
 import android.widget.LinearLayout
+import androidx.activity.ComponentActivity
 import androidx.appcompat.app.AlertDialog
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.ItemTouchHelper
@@ -18,7 +21,16 @@ import com.example.voicenotes.databinding.ActivityNotesBinding
 import com.example.voicenotes.presentation.recycler.NoteListAdapter
 import com.example.voicenotes.presentation.vm.MainViewModel
 import com.example.voicenotes.presentation.vm.ViewModelFactory
+import com.example.voicenotes.utils.createFileNameForVkDocs
+import com.example.voicenotes.utils.filePath
+import com.example.voicenotes.utils.showToast
+import com.example.voicenotes.vkid.VKServerUploadInfo2
+import com.example.voicenotes.vkid.VKWallPostCommand
 import com.google.android.material.bottomsheet.BottomSheetBehavior
+import com.vk.api.sdk.VK
+import com.vk.api.sdk.VKApiCallback
+import com.vk.api.sdk.auth.VKAuthenticationResult
+import java.io.File
 import javax.inject.Inject
 
 class NotesActivity : AppCompatActivity() {
@@ -44,6 +56,15 @@ class NotesActivity : AppCompatActivity() {
     private lateinit var noteListAdapter: NoteListAdapter
     private var allChecked = false
     private lateinit var bottomSheetBehavior: BottomSheetBehavior<LinearLayout>
+
+    private val authLauncher = VK.login(this as ComponentActivity) { result : VKAuthenticationResult ->
+        when (result) {
+            is VKAuthenticationResult.Success -> {
+                showToast(AUTHORIZATION_SUCCESS)
+            }
+            is VKAuthenticationResult.Failed -> showToast(AUTHORIZATION_FAILED)
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         component.inject(this)
@@ -74,7 +95,8 @@ class NotesActivity : AppCompatActivity() {
                 val builder = AlertDialog.Builder(this@NotesActivity)
                 builder.setTitle(deleteMsg)
                 builder.setPositiveButton(deleteBtnMsg) {_, _ ->
-                    val item = noteListAdapter.currentList[viewHolder.position]
+
+                    val item = noteListAdapter.currentList[viewHolder.layoutPosition]
                     viewModel.deleteNote(item)
                 }
                 builder.setNegativeButton(cancelBtnMsg) {_, _ ->
@@ -158,9 +180,34 @@ class NotesActivity : AppCompatActivity() {
             )
             startActivity(intent)
         }
+
+        onNoteItemLongClickListener = {
+            val noteToShareFile = File(it.filepath)
+            val file = Uri.fromFile(noteToShareFile)
+
+            VK.execute(VKWallPostCommand(
+                message = TRYING_TO_UPLOAD,
+                file = file,
+                fileName = it.fileName,
+                ownerId = 0
+            ), object:
+                VKApiCallback<VKServerUploadInfo2> {
+                override fun fail(error: Exception) {
+                    showToast(error.toString())
+                }
+                override fun success(result: VKServerUploadInfo2) {
+                    showToast(result.uploadUrl)
+                }
+            })
+        }
+
     }
 
     companion object {
+        const val AUTHORIZATION_SUCCESS = "authorization success"
+        const val AUTHORIZATION_FAILED = "authorization failed"
+        const val TRYING_TO_UPLOAD = "trying to upload!"
+
         fun newIntentOpenNotesActivity(context: Context) = Intent(context, NotesActivity::class.java)
     }
 }

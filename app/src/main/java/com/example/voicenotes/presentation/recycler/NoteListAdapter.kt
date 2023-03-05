@@ -39,8 +39,6 @@ class NoteListAdapter: ListAdapter<NoteEntity, NoteListAdapter.NoteItemViewHolde
         }
     }
 
-
-
     inner class NoteItemViewHolder(val binding: ListitemBinding):
         RecyclerView.ViewHolder(binding.root)
 }
