@@ -5,13 +5,12 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.media.MediaRecorder
 import android.os.*
-import android.speech.RecognitionListener
-import android.speech.RecognizerIntent
-import android.speech.SpeechRecognizer
-import android.view.MotionEvent
+import android.provider.Settings
+import android.util.Log
 import android.view.View
-import android.view.View.OnTouchListener
 import android.widget.LinearLayout
+import androidx.activity.ComponentActivity
+import androidx.activity.result.ActivityResultLauncher
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import com.example.voicenotes.R
@@ -24,9 +23,15 @@ import com.example.voicenotes.utils.Timer
 import com.example.voicenotes.vm.NoteItemViewModel
 import com.example.voicenotes.vm.ViewModelFactory
 import com.google.android.material.bottomsheet.BottomSheetBehavior
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.launch
+import com.vk.api.sdk.VK
+import com.vk.api.sdk.VKApiCallback
+import com.vk.api.sdk.auth.VKAccessToken
+import com.vk.api.sdk.auth.VKAuthCallback
+import com.vk.api.sdk.auth.VKAuthenticationResult
+import com.vk.api.sdk.auth.VKScope
+import com.vk.api.sdk.exceptions.VKAuthException
+import com.vk.sdk.api.friends.FriendsService
+import com.vk.sdk.api.friends.dto.FriendsGetFieldsResponseDto
 import java.io.File
 import java.io.IOException
 import java.text.SimpleDateFormat
@@ -64,6 +69,13 @@ class MainActivity : AppCompatActivity(), Timer.TimerTickListener {
     private lateinit var bottomSheetBehavior: BottomSheetBehavior<LinearLayout>
     private val activityContext = this@MainActivity
 
+    private val authLauncher = VK.login(this as ComponentActivity) { result : VKAuthenticationResult ->
+        when (result) {
+            is VKAuthenticationResult.Success -> showToast("Авторизация прошла успешно")
+            is VKAuthenticationResult.Failed -> showToast("Упс... Что-то пошло не так, попробуйте заново")
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         component.inject(this)
         super.onCreate(savedInstanceState)
@@ -73,20 +85,17 @@ class MainActivity : AppCompatActivity(), Timer.TimerTickListener {
         buttonsActions()
     }
 
-    private fun requestAudioPermission() {
-        if (!isAudioPermissionGranted())
-            showAudioPermissionDialog(REQUEST_CODE)
-    }
-
-    private fun init() {
-        bottomSheetBehavior = BottomSheetBehavior.from(binding.bottomMenuId.bottomMenu)
-        bottomSheetBehavior.apply {
-            peekHeight = 0
-            state = BottomSheetBehavior.STATE_COLLAPSED
-        }
-    }
 
     private fun buttonsActions() = with(binding) {
+
+        buttonVkId.setOnClickListener {
+            binding.tvTimer.text = ""
+            authLauncher.launch(arrayListOf(VKScope.WALL, VKScope.PHOTOS))
+
+
+
+        }
+
         buttonRecord.setOnClickListener {
 
             when {
@@ -242,8 +251,18 @@ class MainActivity : AppCompatActivity(), Timer.TimerTickListener {
             permissionGranted = grantResults[0] == PackageManager.PERMISSION_GRANTED
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
+
+    private fun requestAudioPermission() {
+        if (!isAudioPermissionGranted())
+            showAudioPermissionDialog(REQUEST_CODE)
+    }
+
+    private fun init() {
+        bottomSheetBehavior = BottomSheetBehavior.from(binding.bottomMenuId.bottomMenu)
+        bottomSheetBehavior.apply {
+            peekHeight = 0
+            state = BottomSheetBehavior.STATE_COLLAPSED
+        }
     }
 
 

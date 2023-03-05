@@ -13,16 +13,22 @@
         android:fitsSystemWindows="true"
         android:elevation="0dp"
         android:background="@android:color/transparent">
+
         <com.google.android.material.appbar.CollapsingToolbarLayout
             android:layout_width="match_parent"
             android:layout_height="120dp"
             style="@style/CustomCollapsingToolbarLayout"
             app:layout_scrollFlags="scroll|exitUntilCollapsed">
+
             <com.google.android.material.appbar.MaterialToolbar
                 android:id="@+id/toolbar"
                 android:layout_width="match_parent"
                 android:layout_height="?actionBarSize"
-                app:title="Notes" />
+                app:buttonGravity="center_vertical"
+                app:title="Notes" >
+
+            </com.google.android.material.appbar.MaterialToolbar>
+
             <RelativeLayout
                 android:id="@+id/buttonsBar"
                 android:visibility="gone"
