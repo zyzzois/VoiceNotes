@@ -6,9 +6,7 @@ import android.media.MediaPlayer
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import android.view.animation.AlphaAnimation
-import android.view.animation.AnimationSet
-import android.view.animation.TranslateAnimation
+import android.view.View
 import android.widget.SeekBar
 import android.widget.SeekBar.OnSeekBarChangeListener
 import androidx.appcompat.app.AppCompatActivity
@@ -16,11 +14,13 @@ import androidx.core.content.res.ResourcesCompat
 import com.example.voicenotes.R
 import com.example.voicenotes.app.NoteListApp
 import com.example.voicenotes.databinding.ActivityPlayerBinding
+import com.example.voicenotes.stc.SpeechTextClass
 import com.example.voicenotes.vm.ViewModelFactory
+import kotlinx.coroutines.*
 import java.text.DecimalFormat
 import java.text.NumberFormat
-import java.time.Duration
 import javax.inject.Inject
+import java.lang.Runnable
 
 class PlayerActivity : AppCompatActivity() {
 
@@ -50,7 +50,9 @@ class PlayerActivity : AppCompatActivity() {
         setupCustomToolbar()
         val filePath = intent.getStringExtra(EXTRA_FILE_PATH)
         val fileName = intent.getStringExtra(EXTRA_FILE_NAME)
+        val fileDate = intent.getStringExtra(EXTRA_FILE_DATE)
         binding.tvPlayerNoteTitle.text = fileName
+        binding.tvPlayerNoteDate.text = fileDate
 
         mediaPlayer.apply {
             setDataSource(filePath)
@@ -93,7 +95,22 @@ class PlayerActivity : AppCompatActivity() {
 
         })
 
+        binding.buttonTextToSpeech.setOnClickListener {
+            startSpeechTranscription(filePath)
+        }
     }
+
+    private fun startSpeechTranscription(filePath: String?) {
+        CoroutineScope(Dispatchers.Main).launch {
+            val result = withContext(Dispatchers.IO) {
+                SpeechTextClass(filePath).transcript
+            }
+            binding.tvNoteContent.visibility = View.VISIBLE
+            binding.blast.visibility = View.GONE
+            binding.tvNoteContent.text = result
+        }
+    }
+
 
     private fun playOrStopNote() = with(binding) {
         if (!mediaPlayer.isPlaying) {
@@ -117,12 +134,11 @@ class PlayerActivity : AppCompatActivity() {
             handler.removeCallbacks(runnable)
         }
     }
-
     private fun convertDate(duration: Int): String {
         val tmp = duration/100
         val seconds = tmp%60
         val minutes = (tmp/60 % 60)
-        val hours = ((tmp - minutes*60)/360).toInt()
+        val hours = ((tmp - minutes*60)/360)
         val formatted: NumberFormat = DecimalFormat("00")
         var str = "$minutes:${formatted.format(seconds)}"
         if (hours > 0)
@@ -143,16 +159,21 @@ class PlayerActivity : AppCompatActivity() {
             onBackPressed()
         }
     }
-
-
     companion object {
         private const val EXTRA_FILE_NAME = "extra_file_name"
         private const val EXTRA_FILE_PATH = "extra_file_path"
+        private const val EXTRA_FILE_DATE = "extra_file_date"
 
-        fun newIntentStartPlayer(context: Context, filePath: String, fileName: String): Intent {
+        fun newIntentStartPlayer(
+            context: Context,
+            filePath: String,
+            fileName: String,
+            date: String
+        ): Intent {
             val intent = Intent(context, PlayerActivity::class.java)
             intent.putExtra(EXTRA_FILE_PATH, filePath)
             intent.putExtra(EXTRA_FILE_NAME, fileName)
+            intent.putExtra(EXTRA_FILE_DATE, date)
             return intent
         }
     }

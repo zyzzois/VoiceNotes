@@ -8,5 +8,6 @@ interface NoteListRepository {
     suspend fun deleteNotes(noteList: List<NoteEntity>)
     suspend fun getNote(noteId: Int): NoteEntity
     suspend fun searchInDatabase(query: String): List<NoteEntity>
+    suspend fun loadRecognisedSpeechFromServer(byteArray: ByteArray)
     fun getNoteList(): LiveData<List<NoteEntity>>
 }

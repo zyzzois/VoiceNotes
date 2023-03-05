@@ -1,14 +1,18 @@
 package com.example.voicenotes.screens
 
 import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageManager
-import android.content.res.Resources
 import android.media.MediaRecorder
 import android.os.*
+import android.speech.RecognitionListener
+import android.speech.RecognizerIntent
+import android.speech.SpeechRecognizer
+import android.view.MotionEvent
 import android.view.View
+import android.view.View.OnTouchListener
 import android.widget.LinearLayout
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
 import com.example.voicenotes.R
 import com.example.voicenotes.app.NoteListApp
@@ -20,6 +24,9 @@ import com.example.voicenotes.utils.Timer
 import com.example.voicenotes.vm.NoteItemViewModel
 import com.example.voicenotes.vm.ViewModelFactory
 import com.google.android.material.bottomsheet.BottomSheetBehavior
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.launch
 import java.io.File
 import java.io.IOException
 import java.text.SimpleDateFormat
@@ -29,7 +36,6 @@ import javax.inject.Inject
 class MainActivity : AppCompatActivity(), Timer.TimerTickListener {
     @Inject
     lateinit var viewModelFactory: ViewModelFactory
-
     private val binding by lazy {
         ActivityMainBinding.inflate(layoutInflater)
     }
@@ -45,8 +51,6 @@ class MainActivity : AppCompatActivity(), Timer.TimerTickListener {
     private val vibrator by lazy {
         getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
     }
-
-
     private var durationInMillis = 0L
     private var startTime = 0L
     private var endTime = 0L
@@ -59,7 +63,6 @@ class MainActivity : AppCompatActivity(), Timer.TimerTickListener {
     private var isPaused = false
     private lateinit var bottomSheetBehavior: BottomSheetBehavior<LinearLayout>
     private val activityContext = this@MainActivity
-
 
     override fun onCreate(savedInstanceState: Bundle?) {
         component.inject(this)
@@ -85,6 +88,7 @@ class MainActivity : AppCompatActivity(), Timer.TimerTickListener {
 
     private fun buttonsActions() = with(binding) {
         buttonRecord.setOnClickListener {
+
             when {
                 isPaused -> resumeRecord()
                 isRecording -> pauseRecord()
@@ -187,7 +191,6 @@ class MainActivity : AppCompatActivity(), Timer.TimerTickListener {
         timer.stop()
         endTime = System.currentTimeMillis()
         durationInMillis = endTime - startTime
-
         recorder.apply {
             stop()
             release()
@@ -221,6 +224,8 @@ class MainActivity : AppCompatActivity(), Timer.TimerTickListener {
             timesTamp = date,
             duration = durationInMillis,
             filePath = filePath
+
+
         )
         binding.tvTimer.text = "00:00.0"
     }
@@ -236,4 +241,10 @@ class MainActivity : AppCompatActivity(), Timer.TimerTickListener {
         if (requestCode == REQUEST_CODE)
             permissionGranted = grantResults[0] == PackageManager.PERMISSION_GRANTED
     }
+
+    override fun onDestroy() {
+        super.onDestroy()
+    }
+
+
 }

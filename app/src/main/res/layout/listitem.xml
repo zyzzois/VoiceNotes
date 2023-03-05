@@ -37,7 +37,7 @@
             <TextView
                 android:id="@+id/tv_note_date"
                 android:text="data"
-                android:textSize="12sp"
+                android:textSize="11sp"
                 android:fontFamily="@font/vk_sans_display_demi_bold"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"/>
