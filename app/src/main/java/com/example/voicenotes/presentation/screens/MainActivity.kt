@@ -1,16 +1,11 @@
-package com.example.voicenotes.screens
+package com.example.voicenotes.presentation.screens
 
 import android.content.Context
-import android.content.Intent
 import android.content.pm.PackageManager
 import android.media.MediaRecorder
 import android.os.*
-import android.provider.Settings
-import android.util.Log
 import android.view.View
-import android.widget.LinearLayout
 import androidx.activity.ComponentActivity
-import androidx.activity.result.ActivityResultLauncher
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import com.example.voicenotes.R
@@ -20,18 +15,13 @@ import com.example.voicenotes.utils.*
 import com.example.voicenotes.utils.Constants.FULL_DATE_PATTERN
 import com.example.voicenotes.utils.Constants.REQUEST_CODE
 import com.example.voicenotes.utils.Timer
-import com.example.voicenotes.vm.NoteItemViewModel
-import com.example.voicenotes.vm.ViewModelFactory
+import com.example.voicenotes.vkid.VKWallPostCommand
+import com.example.voicenotes.presentation.vm.NoteItemViewModel
+import com.example.voicenotes.presentation.vm.ViewModelFactory
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.vk.api.sdk.VK
-import com.vk.api.sdk.VKApiCallback
-import com.vk.api.sdk.auth.VKAccessToken
-import com.vk.api.sdk.auth.VKAuthCallback
 import com.vk.api.sdk.auth.VKAuthenticationResult
 import com.vk.api.sdk.auth.VKScope
-import com.vk.api.sdk.exceptions.VKAuthException
-import com.vk.sdk.api.friends.FriendsService
-import com.vk.sdk.api.friends.dto.FriendsGetFieldsResponseDto
 import java.io.File
 import java.io.IOException
 import java.text.SimpleDateFormat
@@ -41,21 +31,26 @@ import javax.inject.Inject
 class MainActivity : AppCompatActivity(), Timer.TimerTickListener {
     @Inject
     lateinit var viewModelFactory: ViewModelFactory
-    private val binding by lazy {
-        ActivityMainBinding.inflate(layoutInflater)
-    }
-    private val component by lazy {
-        (application as NoteListApp).component
-    }
+
+    private val binding by lazy { ActivityMainBinding.inflate(layoutInflater) }
+    private val component by lazy { (application as NoteListApp).component }
+    private val timer by lazy { Timer(this) }
+
+    private val defaultTimerText by lazy { resources.getString(R.string.defaultTimeText) }
+    private val successAuthMsg by lazy { resources.getString(R.string.succesAuthMsg) }
+    private val failedAuthMsg by lazy { resources.getString(R.string.succesAuthMsg) }
+    private val noteDeletedMsg by lazy { resources.getString(R.string.msg_note_deleted) }
+    private val noteCanceledMsg by lazy { resources.getString(R.string.msg_note_canceled) }
+
     private val viewModel by lazy {
         ViewModelProvider(this, viewModelFactory)[NoteItemViewModel::class.java]
     }
-    private val timer by lazy {
-        Timer(this)
+    private val bottomSheetBehavior by lazy {
+        BottomSheetBehavior.from(binding.bottomMenuId.bottomMenu)
     }
-    private val vibrator by lazy {
-        getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
-    }
+
+    private val vibrator by lazy { getSystemService(Context.VIBRATOR_SERVICE) as Vibrator }
+
     private var durationInMillis = 0L
     private var startTime = 0L
     private var endTime = 0L
@@ -66,13 +61,12 @@ class MainActivity : AppCompatActivity(), Timer.TimerTickListener {
     private lateinit var date: String
     private var isRecording = false
     private var isPaused = false
-    private lateinit var bottomSheetBehavior: BottomSheetBehavior<LinearLayout>
     private val activityContext = this@MainActivity
 
     private val authLauncher = VK.login(this as ComponentActivity) { result : VKAuthenticationResult ->
         when (result) {
-            is VKAuthenticationResult.Success -> showToast("Авторизация прошла успешно")
-            is VKAuthenticationResult.Failed -> showToast("Упс... Что-то пошло не так, попробуйте заново")
+            is VKAuthenticationResult.Success -> showToast(successAuthMsg)
+            is VKAuthenticationResult.Failed -> showToast(failedAuthMsg)
         }
     }
 
@@ -85,19 +79,20 @@ class MainActivity : AppCompatActivity(), Timer.TimerTickListener {
         buttonsActions()
     }
 
+    private fun init() {
+        bottomSheetBehavior.apply {
+            peekHeight = 0
+            state = BottomSheetBehavior.STATE_COLLAPSED
+        }
+    }
 
     private fun buttonsActions() = with(binding) {
-
         buttonVkId.setOnClickListener {
-            binding.tvTimer.text = ""
-            authLauncher.launch(arrayListOf(VKScope.WALL, VKScope.PHOTOS))
-
-
-
+            tvTimer.text = ""
+            authLauncher.launch(arrayListOf(VKScope.DOCS))
         }
 
         buttonRecord.setOnClickListener {
-
             when {
                 isPaused -> resumeRecord()
                 isRecording -> pauseRecord()
@@ -126,15 +121,15 @@ class MainActivity : AppCompatActivity(), Timer.TimerTickListener {
         buttonDelete.setOnClickListener {
             stopRecord()
             File(filePath(dirPath, filename)).delete()
-            tvTimer.text = "00:00.0"
-            showToast("Запись отменена")
+            tvTimer.text = defaultTimerText
+            showToast(noteCanceledMsg)
         }
 
         bottomMenuId.buttonDeleteOnBottomMenu.setOnClickListener {
             File(filePath(dirPath, filename)).delete()
-            tvTimer.text = "00:00.0"
+            tvTimer.text = defaultTimerText
             dismiss()
-            showToast("Запись удалена")
+            showToast(noteDeletedMsg)
         }
         bottomMenuId.buttonSaveOnBottomMenu.setOnClickListener {
             dismiss()
@@ -155,10 +150,8 @@ class MainActivity : AppCompatActivity(), Timer.TimerTickListener {
         }
         recorder = MediaRecorder()
         dirPath = "${externalCacheDir?.absolutePath}/"
-
         val sdf = SimpleDateFormat(FULL_DATE_PATTERN, Locale.getDefault())
         date = sdf.format(Date())
-
         filename = returnDefaultFileName(date)
         recorder.apply {
             setAudioSource(MediaRecorder.AudioSource.MIC)
@@ -175,20 +168,19 @@ class MainActivity : AppCompatActivity(), Timer.TimerTickListener {
         isRecording = true
         isPaused = false
         timer.start()
-
         buttonDelete.isClickable = true
         buttonDelete.setImageResource(R.drawable.ic_delete)
-
         buttonShowList.visibility= View.GONE
         buttonDone.visibility= View.VISIBLE
-
     }
+
     private fun pauseRecord() {
         recorder.pause()
         isPaused = true
         binding.buttonRecord.setImageResource(R.drawable.ic_mic)
         timer.pause()
     }
+
     private fun resumeRecord() {
         recorder.resume()
         isPaused = false
@@ -196,6 +188,7 @@ class MainActivity : AppCompatActivity(), Timer.TimerTickListener {
 
         timer.start()
     }
+
     private fun stopRecord() = with(binding) {
         timer.stop()
         endTime = System.currentTimeMillis()
@@ -208,11 +201,11 @@ class MainActivity : AppCompatActivity(), Timer.TimerTickListener {
         isRecording = false
         buttonShowList.visibility = View.VISIBLE
         buttonDone.visibility = View.GONE
-
         buttonDelete.isClickable = false
         buttonDelete.setImageResource(R.drawable.ic_delete_disabled)
         buttonRecord.setImageResource(R.drawable.ic_mic)
     }
+
     private fun dismiss() = with(binding) {
         bottomMenuBackground.visibility = View.GONE
         Handler(Looper.getMainLooper()).postDelayed({
@@ -221,22 +214,15 @@ class MainActivity : AppCompatActivity(), Timer.TimerTickListener {
         hideKeyboard(bottomMenuId.inputFileName)
     }
 
-    private fun saveNote() {
-        val newFileName = binding.bottomMenuId.inputFileName.text.toString()
+    private fun saveNote() = with(binding) {
+        val newFileName = bottomMenuId.inputFileName.text.toString()
         if (newFileName != filename) {
             val newFile = File(filePath(dirPath, newFileName))
             File(filePath(dirPath, filename)).renameTo(newFile)
         }
         val filePath = filePath(dirPath, newFileName)
-        viewModel.addNoteItem(
-            fileName = newFileName,
-            timesTamp = date,
-            duration = durationInMillis,
-            filePath = filePath
-
-
-        )
-        binding.tvTimer.text = "00:00.0"
+        viewModel.addNoteItem(newFileName, date, durationInMillis, filePath)
+        tvTimer.text = defaultTimerText
     }
     override fun timerTick(duration: String) {
         binding.tvTimer.text = duration
@@ -251,19 +237,8 @@ class MainActivity : AppCompatActivity(), Timer.TimerTickListener {
             permissionGranted = grantResults[0] == PackageManager.PERMISSION_GRANTED
     }
 
-
     private fun requestAudioPermission() {
         if (!isAudioPermissionGranted())
             showAudioPermissionDialog(REQUEST_CODE)
     }
-
-    private fun init() {
-        bottomSheetBehavior = BottomSheetBehavior.from(binding.bottomMenuId.bottomMenu)
-        bottomSheetBehavior.apply {
-            peekHeight = 0
-            state = BottomSheetBehavior.STATE_COLLAPSED
-        }
-    }
-
-
 }

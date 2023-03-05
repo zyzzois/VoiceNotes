@@ -1,4 +1,4 @@
-package com.example.voicenotes.vm
+package com.example.voicenotes.presentation.vm
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider

@@ -1,4 +1,4 @@
-package com.example.voicenotes.screens
+package com.example.voicenotes.presentation.screens
 
 import android.content.Context
 import android.content.Intent
@@ -15,12 +15,13 @@ import com.example.voicenotes.R
 import com.example.voicenotes.app.NoteListApp
 import com.example.voicenotes.databinding.ActivityPlayerBinding
 import com.example.voicenotes.stc.SpeechTextClass
-import com.example.voicenotes.vm.ViewModelFactory
+import com.example.voicenotes.utils.convertDate
+import com.example.voicenotes.presentation.vm.ViewModelFactory
 import kotlinx.coroutines.*
+import java.lang.Runnable
 import java.text.DecimalFormat
 import java.text.NumberFormat
 import javax.inject.Inject
-import java.lang.Runnable
 
 class PlayerActivity : AppCompatActivity() {
 
@@ -42,6 +43,8 @@ class PlayerActivity : AppCompatActivity() {
     private lateinit var runnable: Runnable
     private lateinit var handler: Handler
     private var delay = 1000L
+    private var isShowing = false
+    private var speechAlreadyRecognised = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         component.inject(this)
@@ -101,19 +104,26 @@ class PlayerActivity : AppCompatActivity() {
     }
 
     private fun startSpeechTranscription(filePath: String?) {
+        isShowing = !isShowing
+        binding.progressBar.visibility = View.VISIBLE
+        binding.blast.visibility = View.GONE
         CoroutineScope(Dispatchers.Main).launch {
             val result = withContext(Dispatchers.IO) {
                 SpeechTextClass(filePath).transcript
             }
+            speechAlreadyRecognised = true
             binding.tvNoteContent.visibility = View.VISIBLE
             binding.blast.visibility = View.GONE
             binding.tvNoteContent.text = result
+            binding.progressBar.visibility = View.GONE
         }
+
     }
 
 
     private fun playOrStopNote() = with(binding) {
         if (!mediaPlayer.isPlaying) {
+            binding.blast.visibility = View.VISIBLE
             mediaPlayer.start()
             if (mediaPlayer.audioSessionId != -1)
                 blast.setAudioSessionId(mediaPlayer.audioSessionId);
@@ -145,6 +155,9 @@ class PlayerActivity : AppCompatActivity() {
             str = "$hours:$str"
         return str
     }
+
+
+
     override fun onBackPressed() {
         super.onBackPressed()
         mediaPlayer.stop()

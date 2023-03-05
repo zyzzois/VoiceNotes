@@ -18,8 +18,8 @@ class NoteListRepositoryImpl @Inject constructor(
         noteListDao.insertNewVoiceNote(mapper.mapEntityToDbModel(noteEntity))
     }
 
-    override suspend fun deleteNotes(noteList: List<NoteEntity>) {
-        noteListDao.deleteVoiceNote(noteList.map { mapper.mapEntityToDbModel(it) })
+    override suspend fun deleteNote(note: NoteEntity) {
+        noteListDao.deleteVoiceNote(mapper.mapEntityToDbModel(note))
     }
 
     override suspend fun getNote(noteId: Int): NoteEntity {
@@ -34,15 +34,10 @@ class NoteListRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun loadRecognisedSpeechFromServer(byteArray: ByteArray) {
-        val date = "234"
-    }
-
     override fun getNoteList(): LiveData<List<NoteEntity>> = Transformations.map(
         noteListDao.getVoiceNoteList()
     ) {
         mapper.mapListDbModelToList(it)
     }
-
 
 }

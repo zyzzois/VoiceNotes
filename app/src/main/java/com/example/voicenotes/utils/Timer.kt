@@ -1,38 +1,37 @@
 package com.example.voicenotes.utils
 
-import android.os.Handler
-import android.os.Looper
+import kotlinx.coroutines.*
+import kotlin.coroutines.CoroutineContext
 
-class Timer(listener: TimerTickListener) {
+class Timer(
+    private val listener: TimerTickListener,
+    private val coroutineContext: CoroutineContext = Dispatchers.Main
+) {
 
     interface TimerTickListener {
         fun timerTick(duration: String)
     }
 
-    private var handler = Handler(Looper.getMainLooper())
-    private lateinit var runnable: Runnable
-
+    private var job: Job? = null
     private var duration = 0L
-    private var delay = 100L
+    private val delay = 100L
 
-    init {
-        runnable = Runnable {
-            duration += delay
-            handler.postDelayed(runnable, delay)
-            listener.timerTick(format())
+    fun start() {
+        job = CoroutineScope(coroutineContext).launch {
+            while (true) {
+                delay(delay)
+                duration += delay
+                listener.timerTick(format())
+            }
         }
     }
 
-    fun start() {
-        handler.postDelayed(runnable, delay)
-    }
-
     fun pause() {
-        handler.removeCallbacks(runnable)
+        job?.cancel()
     }
 
     fun stop() {
-        handler.removeCallbacks(runnable)
+        job?.cancel()
         duration = 0L
     }
 
