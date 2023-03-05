@@ -33,7 +33,7 @@ fun AppCompatActivity.isAudioPermissionGranted(): Boolean {
 }
 
 fun filePath(dirPath: String, fileName: String): String {
-    return dirPath+fileName+MP3
+    return dirPath+fileName+M4A
 }
 
 fun convertDate(duration: Int): String {
@@ -48,7 +48,7 @@ fun convertDate(duration: Int): String {
     return str
 }
 
-fun returnDefaultFileName(date: String) = AUDIO_RECORD_ + date
+fun returnDefaultFileName(date: String) = AUDIO_RECORD_ + date + M4A
 
-private const val MP3 = ".m4a"
+private const val M4A = ".m4a"
 private const val AUDIO_RECORD_ = "note_"

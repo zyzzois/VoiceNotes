@@ -24,13 +24,11 @@ class MainViewModel @Inject constructor(
     val searchedQueryList: LiveData<List<NoteEntity>>
         get() = _searchedQueryList
 
-
     fun deleteNote(note: NoteEntity) {
         viewModelScope.launch {
             deleteNoteItemUseCase(note)
         }
     }
-
 
     fun searchInDataBase(query: String) {
         viewModelScope.launch {

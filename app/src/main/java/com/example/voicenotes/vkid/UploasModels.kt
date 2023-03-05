@@ -1,11 +1,13 @@
 package com.example.voicenotes.vkid
 
-class VKSaveInfo(val id: Int,
-                 val albumId: Int,
-                 val ownerId: Int) {
-    fun getAttachment() = "photo${ownerId}_$id"
+class VKSaveInfo(val fileName: String) {
+    fun getAttachment() = "note${fileName}"
 }
 
-class VKFileUploadInfo(val server: String, val photo: String, val hash: String)
+class VKServerUploadInfo2(val uploadUrl: String)
 
-class VKServerUploadInfo(val uploadUrl: String, val albumId: Int, val userId: Int)
+class VKFileUploadInfo2(val file: String)
+
+
+
+

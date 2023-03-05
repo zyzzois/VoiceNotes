@@ -5,10 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.domain.entity.NoteEntity
 import com.example.domain.usecase.AddNoteItemUseCase
 import kotlinx.coroutines.launch
-import java.text.SimpleDateFormat
-import java.util.*
 import javax.inject.Inject
-import kotlin.time.measureTime
 
 class NoteItemViewModel @Inject constructor(
     private val addNoteItemUseCase: AddNoteItemUseCase
@@ -25,7 +22,5 @@ class NoteItemViewModel @Inject constructor(
             addNoteItemUseCase(noteItem)
         }
     }
-
-
 
 }

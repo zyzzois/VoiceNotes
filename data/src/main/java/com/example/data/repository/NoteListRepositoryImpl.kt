@@ -11,7 +11,8 @@ import javax.inject.Inject
 
 class NoteListRepositoryImpl @Inject constructor(
     private val noteListDao: NoteDao,
-    private val mapper: Mapper
+    private val mapper: Mapper,
+
 ): NoteListRepository {
 
     override suspend fun addNote(noteEntity: NoteEntity) {
