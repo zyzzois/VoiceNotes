@@ -7,7 +7,6 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
-import android.util.Log
 import android.view.View
 import android.widget.LinearLayout
 import androidx.activity.ComponentActivity
@@ -21,8 +20,6 @@ import com.example.voicenotes.databinding.ActivityNotesBinding
 import com.example.voicenotes.presentation.recycler.NoteListAdapter
 import com.example.voicenotes.presentation.vm.MainViewModel
 import com.example.voicenotes.presentation.vm.ViewModelFactory
-import com.example.voicenotes.utils.createFileNameForVkDocs
-import com.example.voicenotes.utils.filePath
 import com.example.voicenotes.utils.showToast
 import com.example.voicenotes.vkid.VKServerUploadInfo2
 import com.example.voicenotes.vkid.VKWallPostCommand
@@ -199,14 +196,16 @@ class NotesActivity : AppCompatActivity() {
                     showToast(result.uploadUrl)
                 }
             })
+            showToast(NOTE_SHARED)
         }
 
     }
 
     companion object {
-        const val AUTHORIZATION_SUCCESS = "authorization success"
-        const val AUTHORIZATION_FAILED = "authorization failed"
+        const val AUTHORIZATION_SUCCESS = "Вы успешно авторизованы"
+        const val AUTHORIZATION_FAILED = "Авторизация не удалась"
         const val TRYING_TO_UPLOAD = "trying to upload!"
+        const val NOTE_SHARED = "Заметка успешно добавлена в раздел документы"
 
         fun newIntentOpenNotesActivity(context: Context) = Intent(context, NotesActivity::class.java)
     }
