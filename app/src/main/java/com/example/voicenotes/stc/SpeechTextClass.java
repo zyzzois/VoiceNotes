@@ -70,16 +70,13 @@ public class SpeechTextClass {
                 }
                 TimeUnit.SECONDS.sleep(15);
             }
-        } else {
+        } else
             throw new Exception("Failed to transcribe!");
-        }
+
     }
 
     public String getTranscript() {
         return transcript;
     }
 
-    public String getTaskId() {
-        return task;
-    }
 }

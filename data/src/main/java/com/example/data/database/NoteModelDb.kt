@@ -12,9 +12,5 @@ data class NoteModelDb(
     var filename: String,
     var filePath: String,
     var timestamp: String,
-    var duration: String,
-    var ampsPath: String
-) {
-    @Ignore
-    var isChecked = false
-}
+    var duration: String
+)

@@ -3,11 +3,11 @@ package com.example.data.mapper
 import com.example.data.database.NoteModelDb
 import com.example.domain.entity.NoteEntity
 import java.text.SimpleDateFormat
+import java.util.*
 import javax.inject.Inject
 
 class Mapper @Inject constructor() {
-    private val sdf = SimpleDateFormat("MM:ss")
-
+    private val sdf = SimpleDateFormat("MM:ss", Locale.getDefault())
 
     fun mapEntityToDbModel(noteEntity: NoteEntity) =
         NoteModelDb(
@@ -15,8 +15,7 @@ class Mapper @Inject constructor() {
             filename = noteEntity.fileName,
             filePath = noteEntity.filepath,
             timestamp = noteEntity.timesTamp,
-            duration = formatMillis(noteEntity.duration),
-            ampsPath = ""
+            duration = noteEntity.duration
          )
 
 
@@ -34,10 +33,10 @@ class Mapper @Inject constructor() {
     }
 
 
-    private fun formatMillis(millis: String): String {
-        val tmp = millis.toLongOrNull()
-        return sdf.format(tmp)
-    }
+//    private fun formatMillis(millis: String): String {
+//        val tmp = millis.toLongOrNull()
+//        return sdf.format(tmp)
+//    }
 
 
 }

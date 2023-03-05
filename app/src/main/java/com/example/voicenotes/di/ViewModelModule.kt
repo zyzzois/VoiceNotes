@@ -1,8 +1,8 @@
 package com.example.voicenotes.di
 
 import androidx.lifecycle.ViewModel
-import com.example.voicenotes.vm.MainViewModel
-import com.example.voicenotes.vm.NoteItemViewModel
+import com.example.voicenotes.presentation.vm.MainViewModel
+import com.example.voicenotes.presentation.vm.NoteItemViewModel
 import dagger.Binds
 import dagger.Module
 import dagger.multibindings.IntoMap

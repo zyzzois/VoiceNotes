@@ -11,4 +11,11 @@
     <string name="searchNoteHint">я помогу найти заметку</string>
     <string name="defaultTimerText">00:00.0</string>
     <integer name="com_vk_sdk_AppId">51572449</integer>
+    <string name="succesAuthMsg">Авторизация прошла успешно</string>
+    <string name="failedAuthMsg">Упс... Что-то пошло не так, попробуйте заново</string>
+    <string name="msg_note_deleted">Запись удалена</string>
+    <string name="msg_note_canceled">Запись отменена</string>
+    <string name="msg_asking_to_delete">Удалить заметку?</string>
+    <string name="delete">Удалить</string>
+    <string name="cancel">Оставить</string>
 </resources>

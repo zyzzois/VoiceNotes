@@ -1,4 +1,4 @@
-package com.example.voicenotes.recycler
+package com.example.voicenotes.presentation.recycler
 
 import androidx.recyclerview.widget.DiffUtil
 import com.example.domain.entity.NoteEntity

@@ -8,6 +8,8 @@ import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
+import java.text.DecimalFormat
+import java.text.NumberFormat
 
 private var permission = arrayOf(Manifest.permission.RECORD_AUDIO)
 
@@ -32,6 +34,18 @@ fun AppCompatActivity.isAudioPermissionGranted(): Boolean {
 
 fun filePath(dirPath: String, fileName: String): String {
     return dirPath+fileName+MP3
+}
+
+fun convertDate(duration: Int): String {
+    val tmp = duration/100
+    val seconds = tmp%60
+    val minutes = (tmp/60 % 60)
+    val hours = ((tmp - minutes*60)/360)
+    val formatted: NumberFormat = DecimalFormat("00")
+    var str = "$minutes:${formatted.format(seconds)}"
+    if (hours > 0)
+        str = "$hours:$str"
+    return str
 }
 
 fun returnDefaultFileName(date: String) = AUDIO_RECORD_ + date

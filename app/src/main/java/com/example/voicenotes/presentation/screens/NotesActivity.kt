@@ -1,24 +1,23 @@
-package com.example.voicenotes.screens
+package com.example.voicenotes.presentation.screens
 
 import android.content.Context
 import android.content.Intent
-import android.media.MediaPlayer
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.speech.SpeechRecognizer
 import android.text.Editable
 import android.text.TextWatcher
-import android.util.Log
 import android.view.View
 import android.widget.LinearLayout
+import androidx.appcompat.app.AlertDialog
 import androidx.lifecycle.ViewModelProvider
-import com.example.domain.entity.NoteEntity
+import androidx.recyclerview.widget.ItemTouchHelper
+import androidx.recyclerview.widget.RecyclerView
+import com.example.voicenotes.R
 import com.example.voicenotes.app.NoteListApp
 import com.example.voicenotes.databinding.ActivityNotesBinding
-import com.example.voicenotes.recycler.NoteListAdapter
-import com.example.voicenotes.utils.showToast
-import com.example.voicenotes.vm.MainViewModel
-import com.example.voicenotes.vm.ViewModelFactory
+import com.example.voicenotes.presentation.recycler.NoteListAdapter
+import com.example.voicenotes.presentation.vm.MainViewModel
+import com.example.voicenotes.presentation.vm.ViewModelFactory
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import javax.inject.Inject
 
@@ -39,11 +38,12 @@ class NotesActivity : AppCompatActivity() {
         ViewModelProvider(this, viewModelFactory)[MainViewModel::class.java]
     }
 
+    private val deleteMsg by lazy { resources.getString(R.string.msg_asking_to_delete) }
+    private val deleteBtnMsg by lazy { resources.getString(R.string.delete) }
+    private val cancelBtnMsg by lazy { resources.getString(R.string.cancel) }
     private lateinit var noteListAdapter: NoteListAdapter
-    private lateinit var deleteList: MutableList<NoteEntity>
     private var allChecked = false
     private lateinit var bottomSheetBehavior: BottomSheetBehavior<LinearLayout>
-
 
     override fun onCreate(savedInstanceState: Bundle?) {
         component.inject(this)
@@ -54,6 +54,39 @@ class NotesActivity : AppCompatActivity() {
         setupActionBar()
         setupButtonsAction()
         setupBottomSheet()
+        setupSwipeListener(binding.rcView)
+    }
+
+    private fun setupSwipeListener(rvNoteList: RecyclerView) {
+        val callback = object : ItemTouchHelper.SimpleCallback(
+            0,
+            ItemTouchHelper.RIGHT or ItemTouchHelper.LEFT
+        ) {
+            override fun onMove(
+                recyclerView: RecyclerView,
+                viewHolder: RecyclerView.ViewHolder,
+                target: RecyclerView.ViewHolder
+            ): Boolean {
+                return false
+            }
+
+            override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
+                val builder = AlertDialog.Builder(this@NotesActivity)
+                builder.setTitle(deleteMsg)
+                builder.setPositiveButton(deleteBtnMsg) {_, _ ->
+                    val item = noteListAdapter.currentList[viewHolder.position]
+                    viewModel.deleteNote(item)
+                }
+                builder.setNegativeButton(cancelBtnMsg) {_, _ ->
+
+                }
+                val dialog = builder.create()
+                dialog.show()
+
+            }
+        }
+        val itemTouchHelper = ItemTouchHelper(callback)
+        itemTouchHelper.attachToRecyclerView(rvNoteList)
     }
 
     private fun setupBottomSheet() {
@@ -65,16 +98,11 @@ class NotesActivity : AppCompatActivity() {
         buttonClose.setOnClickListener {
             supportActionBar?.setDisplayHomeAsUpEnabled(true)
             supportActionBar?.setDisplayShowHomeEnabled(true)
-
             buttonsBar.visibility = View.GONE
             bottomSheetBehavior.state = BottomSheetBehavior.STATE_HIDDEN
-            // Сделать чекбоксы
-            // noteListAdapter.setEditMode(false)
         }
         buttonSelectAllItems.setOnClickListener {
             allChecked = !allChecked
-            // Сделать чекбоксы
-            // обновить список
         }
         buttonAd.setOnClickListener {
             startActivity(Intent(this@NotesActivity, MainActivity::class.java))
@@ -111,7 +139,7 @@ class NotesActivity : AppCompatActivity() {
 
     private fun setupRecyclerView() {
         with(binding.rcView) {
-            noteListAdapter = NoteListAdapter(this@NotesActivity)
+            noteListAdapter = NoteListAdapter()
             adapter = noteListAdapter
         }
         viewModel.noteList.observe(this) {
@@ -122,39 +150,15 @@ class NotesActivity : AppCompatActivity() {
 
     private fun setupClickListener() = with(noteListAdapter) {
         onNoteItemClickListener = {
-            if (noteListAdapter.isEditMode()) {
-                val pos = currentList.indexOf(it)
-                currentList[pos].isChecked = !currentList[pos].isChecked
-                notifyItemChanged(pos)
-            } else {
-                val intent = PlayerActivity.newIntentStartPlayer(
-                    this@NotesActivity,
-                    it.filepath,
-                    it.fileName,
-                    it.timesTamp
-                )
-                startActivity(intent)
-            }
-
+            val intent = PlayerActivity.newIntentStartPlayer(
+                this@NotesActivity,
+                it.filepath,
+                it.fileName,
+                it.timesTamp
+            )
+            startActivity(intent)
         }
-
-        onNoteItemLongClickListener = {
-            val pos = currentList.indexOf(it)
-            noteListAdapter.setEditMode(true)
-            currentList[pos].isChecked = !currentList[pos].isChecked
-            bottomSheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
-
-            if (noteListAdapter.isEditMode() && binding.buttonsBar.visibility == View.GONE) {
-                supportActionBar?.setDisplayHomeAsUpEnabled(false)
-                supportActionBar?.setDisplayShowHomeEnabled(false)
-
-                binding.buttonsBar.visibility = View.VISIBLE
-            }
-        }
-
-
     }
-
 
     companion object {
         fun newIntentOpenNotesActivity(context: Context) = Intent(context, NotesActivity::class.java)

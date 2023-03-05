@@ -1,9 +1,9 @@
 package com.example.voicenotes.di
 
 import android.app.Application
-import com.example.voicenotes.screens.MainActivity
-import com.example.voicenotes.screens.NotesActivity
-import com.example.voicenotes.screens.PlayerActivity
+import com.example.voicenotes.presentation.screens.MainActivity
+import com.example.voicenotes.presentation.screens.NotesActivity
+import com.example.voicenotes.presentation.screens.PlayerActivity
 
 import dagger.BindsInstance
 import dagger.Component

@@ -16,11 +16,11 @@ interface NoteDao {
     suspend fun searchInDatabase(query: String): List<NoteModelDb>
 
     @Insert
-    suspend fun insertNewVoiceNote(voiceNote: NoteModelDb)
+    suspend fun insertNewVoiceNote(note: NoteModelDb)
 
     @Delete
-    suspend fun deleteVoiceNote(voiceNotes: List<NoteModelDb>)
+    suspend fun deleteVoiceNote(note: NoteModelDb)
 
     @Update
-    suspend fun update(voiceNote: NoteModelDb)
+    suspend fun update(note: NoteModelDb)
 }
