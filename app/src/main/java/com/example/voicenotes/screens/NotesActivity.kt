@@ -5,9 +5,12 @@ import android.content.Intent
 import android.media.MediaPlayer
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.speech.SpeechRecognizer
 import android.text.Editable
 import android.text.TextWatcher
 import android.util.Log
+import android.view.View
+import android.widget.LinearLayout
 import androidx.lifecycle.ViewModelProvider
 import com.example.domain.entity.NoteEntity
 import com.example.voicenotes.app.NoteListApp
@@ -16,6 +19,7 @@ import com.example.voicenotes.recycler.NoteListAdapter
 import com.example.voicenotes.utils.showToast
 import com.example.voicenotes.vm.MainViewModel
 import com.example.voicenotes.vm.ViewModelFactory
+import com.google.android.material.bottomsheet.BottomSheetBehavior
 import javax.inject.Inject
 
 class NotesActivity : AppCompatActivity() {
@@ -37,6 +41,9 @@ class NotesActivity : AppCompatActivity() {
 
     private lateinit var noteListAdapter: NoteListAdapter
     private lateinit var deleteList: MutableList<NoteEntity>
+    private var allChecked = false
+    private lateinit var bottomSheetBehavior: BottomSheetBehavior<LinearLayout>
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         component.inject(this)
@@ -44,6 +51,42 @@ class NotesActivity : AppCompatActivity() {
         setContentView(binding.root)
         setupRecyclerView()
         searchNoteAction()
+        setupActionBar()
+        setupButtonsAction()
+        setupBottomSheet()
+    }
+
+    private fun setupBottomSheet() {
+        bottomSheetBehavior = BottomSheetBehavior.from(binding.bottomSheet)
+        bottomSheetBehavior.state = BottomSheetBehavior.STATE_HIDDEN
+    }
+
+    private fun setupButtonsAction() = with(binding) {
+        buttonClose.setOnClickListener {
+            supportActionBar?.setDisplayHomeAsUpEnabled(true)
+            supportActionBar?.setDisplayShowHomeEnabled(true)
+
+            buttonsBar.visibility = View.GONE
+            bottomSheetBehavior.state = BottomSheetBehavior.STATE_HIDDEN
+            // Сделать чекбоксы
+            // noteListAdapter.setEditMode(false)
+        }
+        buttonSelectAllItems.setOnClickListener {
+            allChecked = !allChecked
+            // Сделать чекбоксы
+            // обновить список
+        }
+        buttonAd.setOnClickListener {
+            startActivity(Intent(this@NotesActivity, MainActivity::class.java))
+        }
+    }
+
+    private fun setupActionBar() {
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        supportActionBar?.setDisplayShowHomeEnabled(true)
+        binding.toolbar.setNavigationOnClickListener {
+            onBackPressed()
+        }
     }
 
     private fun searchNoteAction() {
@@ -79,19 +122,34 @@ class NotesActivity : AppCompatActivity() {
 
     private fun setupClickListener() = with(noteListAdapter) {
         onNoteItemClickListener = {
-            val intent = PlayerActivity.newIntentStartPlayer(
-                this@NotesActivity,
-                it.filepath,
-                it.fileName
-            )
-            startActivity(intent)
+            if (noteListAdapter.isEditMode()) {
+                val pos = currentList.indexOf(it)
+                currentList[pos].isChecked = !currentList[pos].isChecked
+                notifyItemChanged(pos)
+            } else {
+                val intent = PlayerActivity.newIntentStartPlayer(
+                    this@NotesActivity,
+                    it.filepath,
+                    it.fileName,
+                    it.timesTamp
+                )
+                startActivity(intent)
+            }
+
         }
 
         onNoteItemLongClickListener = {
-            //viewModel.setEditMode(true)
             val pos = currentList.indexOf(it)
             noteListAdapter.setEditMode(true)
             currentList[pos].isChecked = !currentList[pos].isChecked
+            bottomSheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
+
+            if (noteListAdapter.isEditMode() && binding.buttonsBar.visibility == View.GONE) {
+                supportActionBar?.setDisplayHomeAsUpEnabled(false)
+                supportActionBar?.setDisplayShowHomeEnabled(false)
+
+                binding.buttonsBar.visibility = View.VISIBLE
+            }
         }
 
 

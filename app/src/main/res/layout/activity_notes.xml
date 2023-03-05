@@ -19,9 +19,29 @@
             style="@style/CustomCollapsingToolbarLayout"
             app:layout_scrollFlags="scroll|exitUntilCollapsed">
             <com.google.android.material.appbar.MaterialToolbar
+                android:id="@+id/toolbar"
                 android:layout_width="match_parent"
                 android:layout_height="?actionBarSize"
                 app:title="Notes" />
+            <RelativeLayout
+                android:id="@+id/buttonsBar"
+                android:visibility="gone"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="16dp">
+                <ImageButton
+                    android:id="@+id/buttonClose"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/ic_clouse" />
+
+                <ImageButton
+                    android:id="@+id/buttonSelectAllItems"
+                    android:layout_width="wrap_content"
+                    android:background="@drawable/ic_select_all_items"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentEnd="true"/>
+            </RelativeLayout>
         </com.google.android.material.appbar.CollapsingToolbarLayout>
 
         <com.google.android.material.textfield.TextInputLayout
@@ -38,11 +58,7 @@
                 android:inputType="text"
                 android:imeOptions="actionSearch"
                 />
-
         </com.google.android.material.textfield.TextInputLayout>
-
-
-
     </com.google.android.material.appbar.AppBarLayout>
 
     <androidx.recyclerview.widget.RecyclerView
@@ -52,4 +68,53 @@
         app:layout_behavior="@string/appbar_scrolling_view_behavior"
         app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
         />
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/buttonAd"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:layout_marginEnd="20dp"
+        android:elevation="1dp"
+        android:layout_marginBottom="20dp"
+        android:src="@drawable/ic_open_main_activity"
+        android:backgroundTint="@color/white"
+        app:fabSize="normal" />
+    
+    <LinearLayout
+        android:id="@+id/bottomSheet"
+        android:visibility="gone"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior"
+        app:behavior_hideable="true"
+        android:elevation="16dp"
+        android:background="@color/white"
+        android:orientation="horizontal"
+        android:gravity="center"
+        android:padding="16dp">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/buttonEdiSelectedNote"
+            android:layout_width="match_parent"
+            android:layout_marginStart="30dp"
+            android:text="изменить"
+            android:layout_weight="1"
+            android:fontFamily="@font/vk_sans_display_demi_bold"
+            android:textColor="@color/gray_dark"
+            app:cornerRadius="16dp"
+            android:backgroundTint="@color/gray"
+            android:layout_height="wrap_content" />
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/buttonDeleteSelectedNotes"
+            android:layout_width="match_parent"
+            android:layout_weight="1"
+            android:fontFamily="@font/vk_sans_display_demi_bold"
+            android:backgroundTint="@color/vk_blue_color"
+            android:text="удалить"
+            app:cornerRadius="16dp"
+            android:layout_marginEnd="30dp"
+            android:layout_marginStart="10dp"
+            android:layout_height="wrap_content"/>
+    </LinearLayout>
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

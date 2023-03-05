@@ -6,6 +6,7 @@ import com.example.data.database.NoteDao
 import com.example.data.mapper.Mapper
 import com.example.domain.entity.NoteEntity
 import com.example.domain.repository.NoteListRepository
+import java.util.Date
 import javax.inject.Inject
 
 class NoteListRepositoryImpl @Inject constructor(
@@ -31,6 +32,10 @@ class NoteListRepositoryImpl @Inject constructor(
         return searchedList.map {
             mapper.mapDbModelToEntity(it)
         }
+    }
+
+    override suspend fun loadRecognisedSpeechFromServer(byteArray: ByteArray) {
+        val date = "234"
     }
 
     override fun getNoteList(): LiveData<List<NoteEntity>> = Transformations.map(

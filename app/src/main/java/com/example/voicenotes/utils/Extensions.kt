@@ -36,5 +36,5 @@ fun filePath(dirPath: String, fileName: String): String {
 
 fun returnDefaultFileName(date: String) = AUDIO_RECORD_ + date
 
-private const val MP3 = ".mp3"
+private const val MP3 = ".m4a"
 private const val AUDIO_RECORD_ = "note_"

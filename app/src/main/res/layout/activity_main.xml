@@ -66,6 +66,7 @@
                 android:visibility="gone" />
 
         </LinearLayout>
+
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <View
@@ -78,7 +79,5 @@
     <include
         android:id="@+id/bottom_menu_id"
         layout="@layout/custom_bottom_menu"/>
-
-
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
