@@ -2,6 +2,7 @@ plugins {
     id 'com.android.application'
     id 'org.jetbrains.kotlin.android'
     id 'kotlin-kapt'
+    id 'com.google.gms.google-services'
 }
 
 android {
@@ -41,9 +42,16 @@ dependencies {
     implementation project(path: ':domain')
     implementation project(path: ':data')
 
+    // Firebase
+    implementation platform('com.google.firebase:firebase-bom:31.2.3')
+    implementation 'com.google.firebase:firebase-analytics-ktx'
+    implementation 'com.google.firebase:firebase-auth-ktx'
+
+    // VK SDK
     implementation 'com.vk:android-sdk-core:4.0.1'
     implementation 'com.vk:android-sdk-api:4.0.1'
 
+    // Custom View
     implementation 'com.gauravk.audiovisualizer:audiovisualizer:0.9.2'
 
     // Retrofit
@@ -87,6 +95,4 @@ dependencies {
 
     // Material
     implementation 'com.google.android.material:material:<version>'
-
-
 }
