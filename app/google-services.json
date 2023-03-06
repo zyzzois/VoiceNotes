@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "701212758809",
+    "project_id": "voicenotes-e5424",
+    "storage_bucket": "voicenotes-e5424.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:701212758809:android:84f4ee910e0f5436972b88",
+        "android_client_info": {
+          "package_name": "com.example.voicenotes"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "701212758809-jemjeu6jerovq38a4sumn52mapu34ejr.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.voicenotes",
+            "certificate_hash": "cb6096a0696adf930bd9583e76950709212c86a0"
+          }
+        },
+        {
+          "client_id": "701212758809-h10nmt3bg80e7tas9iof553v5k2vouuu.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCQkdYAcQOwEzVlfp2OiTE_O29MMrZq-co"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "701212758809-h10nmt3bg80e7tas9iof553v5k2vouuu.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
