@@ -17,7 +17,6 @@
         <com.google.android.material.appbar.CollapsingToolbarLayout
             android:layout_width="match_parent"
             android:layout_height="120dp"
-            style="@style/CustomCollapsingToolbarLayout"
             app:layout_scrollFlags="scroll|exitUntilCollapsed">
 
             <com.google.android.material.appbar.MaterialToolbar
@@ -26,6 +25,7 @@
                 android:layout_height="?actionBarSize"
                 app:buttonGravity="center_vertical"
                 app:title="Notes" >
+
 
             </com.google.android.material.appbar.MaterialToolbar>
 
@@ -50,21 +50,40 @@
             </RelativeLayout>
         </com.google.android.material.appbar.CollapsingToolbarLayout>
 
-        <com.google.android.material.textfield.TextInputLayout
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:hintEnabled="false"
-            style="@style/SearchNoteStyle">
 
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/editTextSearchNote"
-                android:layout_width="match_parent"
+            android:orientation="horizontal" >
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:hint="@string/searchNoteHint"
-                android:inputType="text"
-                android:imeOptions="actionSearch"
-                />
-        </com.google.android.material.textfield.TextInputLayout>
+                android:layout_weight="1"
+                app:hintEnabled="false"
+                style="@style/SearchNoteStyle">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/editTextSearchNote"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="@string/searchNoteHint"
+                    android:inputType="text"
+                    android:imeOptions="actionSearch"
+                    />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <ImageButton
+                android:id="@+id/buttonAuthScreen"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginEnd="15dp"
+                android:background="@drawable/ic_auth"/>
+
+        </LinearLayout>
+
+
     </com.google.android.material.appbar.AppBarLayout>
 
     <androidx.recyclerview.widget.RecyclerView
@@ -83,7 +102,7 @@
         android:layout_marginEnd="20dp"
         android:elevation="1dp"
         android:layout_marginBottom="20dp"
-        android:src="@drawable/ic_open_main_activity"
+        android:src="@drawable/ic_add"
         android:backgroundTint="@color/white"
         app:fabSize="normal" />
     

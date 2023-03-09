@@ -1,6 +1,6 @@
-package com.example.domain.entity
+package com.example.domain.entity.firebase
 
-data class UserModel(
+data class FirebaseUserEntity(
     var userId: String? = null,
     val login: String,
     val password: String,

@@ -13,6 +13,7 @@ dependencyResolutionManagement {
         mavenCentral()
         jcenter()
     }
+
 }
 rootProject.name = "VoiceNotes"
 include ':app'

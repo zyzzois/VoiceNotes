@@ -1,4 +1,4 @@
-package com.example.voicenotes.vkid
+package com.example.voicenotes.vk
 
 import android.net.Uri
 import com.vk.api.sdk.VKApiJSONResponseParser
@@ -7,7 +7,6 @@ import com.vk.api.sdk.VKHttpPostCall
 import com.vk.api.sdk.VKMethodCall
 import com.vk.api.sdk.exceptions.VKApiIllegalResponseException
 import com.vk.api.sdk.internal.ApiCommand
-import com.vk.api.sdk.internal.HttpMultipartEntry
 import org.json.JSONException
 import org.json.JSONObject
 import java.util.concurrent.TimeUnit

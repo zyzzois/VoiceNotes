@@ -1,4 +1,4 @@
-package com.example.domain.entity
+package com.example.domain.entity.firebase
 
 sealed class NetworkResult<T>(
     val data: T? = null,

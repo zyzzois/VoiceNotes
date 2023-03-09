@@ -14,19 +14,20 @@ import androidx.appcompat.app.AlertDialog
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
+import com.example.voicenotes.vk.VKWallPostCommand
+import com.example.voicenotes.vk.VKServerUploadInfo2
 import com.example.voicenotes.R
 import com.example.voicenotes.app.NoteListApp
 import com.example.voicenotes.databinding.ActivityNotesBinding
 import com.example.voicenotes.presentation.recycler.NoteListAdapter
-import com.example.voicenotes.presentation.vm.MainViewModel
+import com.example.voicenotes.presentation.vm.NoteListViewModel
 import com.example.voicenotes.presentation.vm.ViewModelFactory
 import com.example.voicenotes.utils.showToast
-import com.example.voicenotes.vkid.VKServerUploadInfo2
-import com.example.voicenotes.vkid.VKWallPostCommand
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.vk.api.sdk.VK
 import com.vk.api.sdk.VKApiCallback
 import com.vk.api.sdk.auth.VKAuthenticationResult
+import com.vk.api.sdk.auth.VKScope
 import java.io.File
 import javax.inject.Inject
 
@@ -34,6 +35,13 @@ class NotesActivity : AppCompatActivity() {
 
     @Inject
     lateinit var viewModelFactory: ViewModelFactory
+
+    private val authLauncher = VK.login(this as ComponentActivity) { result : VKAuthenticationResult ->
+        when (result) {
+            is VKAuthenticationResult.Success -> {}
+            is VKAuthenticationResult.Failed -> {}
+        }
+    }
 
     private val binding by lazy {
         ActivityNotesBinding.inflate(layoutInflater)
@@ -44,24 +52,13 @@ class NotesActivity : AppCompatActivity() {
     }
 
     private val viewModel by lazy {
-        ViewModelProvider(this, viewModelFactory)[MainViewModel::class.java]
+        ViewModelProvider(this, viewModelFactory)[NoteListViewModel::class.java]
     }
 
     private val deleteMsg by lazy { resources.getString(R.string.msg_asking_to_delete) }
     private val deleteBtnMsg by lazy { resources.getString(R.string.delete) }
-    private val cancelBtnMsg by lazy { resources.getString(R.string.cancel) }
     private lateinit var noteListAdapter: NoteListAdapter
-    private var allChecked = false
     private lateinit var bottomSheetBehavior: BottomSheetBehavior<LinearLayout>
-
-    private val authLauncher = VK.login(this as ComponentActivity) { result : VKAuthenticationResult ->
-        when (result) {
-            is VKAuthenticationResult.Success -> {
-                showToast(AUTHORIZATION_SUCCESS)
-            }
-            is VKAuthenticationResult.Failed -> showToast(AUTHORIZATION_FAILED)
-        }
-    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         component.inject(this)
@@ -92,16 +89,11 @@ class NotesActivity : AppCompatActivity() {
                 val builder = AlertDialog.Builder(this@NotesActivity)
                 builder.setTitle(deleteMsg)
                 builder.setPositiveButton(deleteBtnMsg) {_, _ ->
-
                     val item = noteListAdapter.currentList[viewHolder.layoutPosition]
                     viewModel.deleteNote(item)
                 }
-                builder.setNegativeButton(cancelBtnMsg) {_, _ ->
-
-                }
                 val dialog = builder.create()
                 dialog.show()
-
             }
         }
         val itemTouchHelper = ItemTouchHelper(callback)
@@ -120,12 +112,20 @@ class NotesActivity : AppCompatActivity() {
             buttonsBar.visibility = View.GONE
             bottomSheetBehavior.state = BottomSheetBehavior.STATE_HIDDEN
         }
-        buttonSelectAllItems.setOnClickListener {
-            allChecked = !allChecked
-        }
+
         buttonAd.setOnClickListener {
             startActivity(Intent(this@NotesActivity, MainActivity::class.java))
         }
+
+        buttonAuthScreen.setOnClickListener {
+            val intent = AuthorizationActivity.newIntentOpenNotesActivity(
+                this@NotesActivity,
+                true
+            )
+            startActivity(intent)
+        }
+
+
     }
 
     private fun setupActionBar() {
@@ -179,34 +179,45 @@ class NotesActivity : AppCompatActivity() {
         }
 
         onNoteItemLongClickListener = {
-            val noteToShareFile = File(it.filepath)
-            val file = Uri.fromFile(noteToShareFile)
+            if (VK.isLoggedIn()) {
+                val noteToShareFile = File(it.filepath)
+                val file = Uri.fromFile(noteToShareFile)
+                VK.execute(
+                    VKWallPostCommand(
+                        "kkkkkkkk",
+                        file,
+                        it.fileName,
+                        98
+                    ), object:
+                        VKApiCallback<VKServerUploadInfo2> {
+                        override fun fail(error: Exception) {
+                            showToast(error.toString())
+                            println(error.toString())
+                        }
+                        override fun success(result: VKServerUploadInfo2) {
+                            showToast(result.uploadUrl)
+                        }
+                    })
 
-            VK.execute(VKWallPostCommand(
-                message = TRYING_TO_UPLOAD,
-                file = file,
-                fileName = it.fileName,
-                ownerId = 0
-            ), object:
-                VKApiCallback<VKServerUploadInfo2> {
-                override fun fail(error: Exception) {
-                    showToast(error.toString())
+            } else {
+                val builder = AlertDialog.Builder(this@NotesActivity)
+                builder.setTitle("Ошибка")
+                builder.setMessage("Для загрузки в документы вы должны авторизоваться через VK")
+                builder.setPositiveButton("Авторизоваться") {_, _ ->
+                    authLauncher.launch(arrayListOf(VKScope.DOCS))
                 }
-                override fun success(result: VKServerUploadInfo2) {
-                    showToast(result.uploadUrl)
-                }
-            })
-            showToast(NOTE_SHARED)
+                builder.setNegativeButton("отмена") { _, _ -> }
+                val dialog = builder.create()
+                dialog.show()
+
+            }
+
+
         }
 
     }
 
     companion object {
-        const val AUTHORIZATION_SUCCESS = "Вы успешно авторизованы"
-        const val AUTHORIZATION_FAILED = "Авторизация не удалась"
-        const val TRYING_TO_UPLOAD = "trying to upload!"
-        const val NOTE_SHARED = "Заметка успешно добавлена в раздел документы"
-
         fun newIntentOpenNotesActivity(context: Context) = Intent(context, NotesActivity::class.java)
     }
 }

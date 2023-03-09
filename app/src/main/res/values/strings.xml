@@ -19,4 +19,10 @@
     <string name="delete">Удалить</string>
     <string name="cancel">Оставить</string>
     <string name="auth_via_vk_id">auth via vk identificator</string>
+    <string name="vk_id">vk id</string>
+    <string name="authorization_using">authorization using:</string>
+    <string name="continue_without_authorization">continue without authorization</string>
+    <string name="sign_in_firebase">sign in firebase</string>
+    <string name="sign_up_firebase">sign up firebase</string>
+    <string name="connecting_msg">connecting...</string>
 </resources>

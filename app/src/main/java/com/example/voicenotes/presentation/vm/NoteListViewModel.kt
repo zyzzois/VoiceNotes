@@ -7,15 +7,14 @@ import androidx.lifecycle.viewModelScope
 import com.example.domain.entity.NoteEntity
 import com.example.domain.usecase.DeleteNoteUseCase
 import com.example.domain.usecase.GetNoteListUseCase
-import com.example.domain.usecase.GetNoteUseCase
 import com.example.domain.usecase.SearchInDatabaseUseCase
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-class MainViewModel @Inject constructor(
+class NoteListViewModel @Inject constructor(
     private val deleteNoteItemUseCase: DeleteNoteUseCase,
     private val getNoteListUseCase: GetNoteListUseCase,
-    private val searchInDatabaseUseCase: SearchInDatabaseUseCase
+    private val searchInDatabaseUseCase: SearchInDatabaseUseCase,
 ): ViewModel() {
 
     val noteList = getNoteListUseCase()

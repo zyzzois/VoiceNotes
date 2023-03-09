@@ -1,4 +1,4 @@
-package com.example.voicenotes.vkid
+package com.example.voicenotes.vk
 
 class VKSaveInfo(val fileName: String) {
     fun getAttachment() = "note${fileName}"

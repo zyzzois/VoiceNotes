@@ -4,7 +4,6 @@ import android.content.Context
 import android.content.pm.PackageManager
 import android.media.MediaRecorder
 import android.os.*
-import android.util.Log
 import android.view.View
 import androidx.activity.ComponentActivity
 import androidx.appcompat.app.AppCompatActivity
@@ -18,11 +17,8 @@ import com.example.voicenotes.utils.*
 import com.example.voicenotes.utils.Constants.FULL_DATE_PATTERN
 import com.example.voicenotes.utils.Constants.REQUEST_CODE
 import com.example.voicenotes.utils.Timer
-import com.example.voicenotes.vkid.VKServerUploadInfo2
-import com.example.voicenotes.vkid.VKWallPostCommand
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.vk.api.sdk.VK
-import com.vk.api.sdk.VKApiCallback
 import com.vk.api.sdk.auth.VKAuthenticationResult
 import com.vk.api.sdk.auth.VKScope
 import java.io.File
@@ -40,8 +36,6 @@ class MainActivity : AppCompatActivity(), Timer.TimerTickListener {
     private val timer by lazy { Timer(this) }
 
     private val defaultTimerText by lazy { resources.getString(R.string.defaultTimeText) }
-    private val successAuthMsg by lazy { resources.getString(R.string.succesAuthMsg) }
-    private val failedAuthMsg by lazy { resources.getString(R.string.failedAuthMsg) }
     private val noteDeletedMsg by lazy { resources.getString(R.string.msg_note_deleted) }
     private val noteCanceledMsg by lazy { resources.getString(R.string.msg_note_canceled) }
 
@@ -66,13 +60,6 @@ class MainActivity : AppCompatActivity(), Timer.TimerTickListener {
     private var isPaused = false
     private val activityContext = this@MainActivity
 
-    private val authLauncher = VK.login(this as ComponentActivity) { result : VKAuthenticationResult ->
-        when (result) {
-            is VKAuthenticationResult.Success -> showToast(successAuthMsg)
-            is VKAuthenticationResult.Failed -> showToast(failedAuthMsg)
-        }
-    }
-
     override fun onCreate(savedInstanceState: Bundle?) {
         component.inject(this)
         super.onCreate(savedInstanceState)
@@ -90,10 +77,6 @@ class MainActivity : AppCompatActivity(), Timer.TimerTickListener {
     }
 
     private fun buttonsActions() = with(binding) {
-        buttonVkId.setOnClickListener {
-            tvTimer.text = ""
-            authLauncher.launch(arrayListOf(VKScope.DOCS))
-        }
 
         buttonRecord.setOnClickListener {
             when {
@@ -107,7 +90,6 @@ class MainActivity : AppCompatActivity(), Timer.TimerTickListener {
                     startRecord()
                 }
             }
-
         }
 
         buttonShowList.setOnClickListener {
