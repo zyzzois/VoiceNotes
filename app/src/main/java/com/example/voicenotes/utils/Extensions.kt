@@ -36,6 +36,12 @@ fun filePath(dirPath: String, fileName: String): String {
     return dirPath+fileName+M4A
 }
 
+fun AppCompatActivity.formatDuration(duration: Long): String {
+    val seconds = (duration / 1000) % 60
+    val minutes = (duration / (1000 * 60)) % 60
+    return "%02d:%02d".format(minutes, seconds)
+}
+
 fun returnDefaultFileName(date: String) = AUDIO_RECORD_ + date
 
 private const val M4A = ".m4a"

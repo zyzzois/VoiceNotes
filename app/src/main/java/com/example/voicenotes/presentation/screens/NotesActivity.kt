@@ -173,7 +173,8 @@ class NotesActivity : AppCompatActivity() {
                 this@NotesActivity,
                 it.filepath,
                 it.fileName,
-                it.timesTamp
+                it.timesTamp,
+                it.duration
             )
             startActivity(intent)
         }

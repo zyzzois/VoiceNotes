@@ -24,20 +24,9 @@ import javax.inject.Inject
 
 class PlayerActivity : AppCompatActivity() {
 
-    private val component by lazy {
-        (application as NoteListApp).component
-    }
-
-    @Inject
-    lateinit var viewModelFactory: ViewModelFactory
-
-    private val binding by lazy {
-        ActivityPlayerBinding.inflate(layoutInflater)
-    }
-
-    private val mediaPlayer by lazy {
-        MediaPlayer()
-    }
+    private val component by lazy { (application as NoteListApp).component }
+    private val binding by lazy { ActivityPlayerBinding.inflate(layoutInflater) }
+    private val mediaPlayer by lazy { MediaPlayer() }
 
     private lateinit var runnable: Runnable
     private lateinit var handler: Handler
@@ -53,8 +42,10 @@ class PlayerActivity : AppCompatActivity() {
         val filePath = intent.getStringExtra(EXTRA_FILE_PATH)
         val fileName = intent.getStringExtra(EXTRA_FILE_NAME)
         val fileDate = intent.getStringExtra(EXTRA_FILE_DATE)
+        val fileDuration = intent.getStringExtra(EXTRA_FILE_DURATION)
         binding.tvPlayerNoteTitle.text = fileName
         binding.tvPlayerNoteDate.text = fileDate
+        binding.tvDuration.text = fileDuration
 
         mediaPlayer.apply {
             setDataSource(filePath)
@@ -62,6 +53,7 @@ class PlayerActivity : AppCompatActivity() {
         }
 
         binding.tvDuration.text = convertDate(mediaPlayer.duration)
+
         handler = Handler(Looper.getMainLooper())
         runnable = Runnable {
             binding.seekBar.progress = mediaPlayer.currentPosition
@@ -72,9 +64,6 @@ class PlayerActivity : AppCompatActivity() {
         binding.buttonPlayerPlayStop.setOnClickListener {
             playOrStopNote()
         }
-
-        playOrStopNote()
-        binding.seekBar.max = mediaPlayer.duration
 
         mediaPlayer.setOnCompletionListener {
             binding.buttonPlayerPlayStop.background = ResourcesCompat.getDrawable(
@@ -90,16 +79,16 @@ class PlayerActivity : AppCompatActivity() {
                 if (fromUser)
                     mediaPlayer.seekTo(progress)
             }
-
             override fun onStartTrackingTouch(seekBar: SeekBar?) {}
-
             override fun onStopTrackingTouch(seekBar: SeekBar?) {}
-
         })
 
         binding.buttonTextToSpeech.setOnClickListener {
             startSpeechTranscription(filePath)
         }
+
+        playOrStopNote()
+        binding.seekBar.max = mediaPlayer.duration
     }
 
     private fun startSpeechTranscription(filePath: String?) {
@@ -144,12 +133,12 @@ class PlayerActivity : AppCompatActivity() {
         }
     }
     private fun convertDate(duration: Int): String {
-        val tmp = duration/100
+        val tmp = duration / 1000
         val seconds = tmp%60
         val minutes = (tmp/60 % 60)
-        val hours = ((tmp - minutes*60)/360)
-        val formatted: NumberFormat = DecimalFormat("00")
-        var str = "$minutes:${formatted.format(seconds)}"
+        val hours = ((tmp - minutes*60)/360).toInt()
+        val f: NumberFormat = DecimalFormat("00")
+        var str = "$minutes:${f.format(seconds)}"
         if (hours > 0)
             str = "$hours:$str"
         return str
@@ -171,21 +160,25 @@ class PlayerActivity : AppCompatActivity() {
             onBackPressed()
         }
     }
+
     companion object {
         private const val EXTRA_FILE_NAME = "extra_file_name"
         private const val EXTRA_FILE_PATH = "extra_file_path"
         private const val EXTRA_FILE_DATE = "extra_file_date"
+        private const val EXTRA_FILE_DURATION = "extra_file_duration"
 
         fun newIntentStartPlayer(
             context: Context,
             filePath: String,
             fileName: String,
-            date: String
+            date: String,
+            duration: String
         ): Intent {
             val intent = Intent(context, PlayerActivity::class.java)
             intent.putExtra(EXTRA_FILE_PATH, filePath)
             intent.putExtra(EXTRA_FILE_NAME, fileName)
             intent.putExtra(EXTRA_FILE_DATE, date)
+            intent.putExtra(EXTRA_FILE_DURATION, duration)
             return intent
         }
     }
