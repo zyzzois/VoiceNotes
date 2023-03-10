@@ -7,7 +7,6 @@ import java.util.*
 import javax.inject.Inject
 
 class Mapper @Inject constructor() {
-    private val sdf = SimpleDateFormat("MM:ss", Locale.getDefault())
 
     fun mapEntityToDbModel(noteEntity: NoteEntity) =
         NoteModelDb(
@@ -31,12 +30,4 @@ class Mapper @Inject constructor() {
     fun mapListDbModelToList(list: List<NoteModelDb>) = list.map {
         mapDbModelToEntity(it)
     }
-
-
-//    private fun formatMillis(millis: String): String {
-//        val tmp = millis.toLongOrNull()
-//        return sdf.format(tmp)
-//    }
-
-
 }

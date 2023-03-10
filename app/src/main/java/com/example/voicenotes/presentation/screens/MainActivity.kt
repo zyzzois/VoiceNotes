@@ -7,6 +7,7 @@ import android.os.*
 import android.view.View
 import androidx.activity.ComponentActivity
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.util.TimeUtils.formatDuration
 import androidx.lifecycle.ViewModelProvider
 import com.example.voicenotes.R
 import com.example.voicenotes.app.NoteListApp
@@ -21,6 +22,7 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.vk.api.sdk.VK
 import com.vk.api.sdk.auth.VKAuthenticationResult
 import com.vk.api.sdk.auth.VKScope
+import okhttp3.internal.concurrent.formatDuration
 import java.io.File
 import java.io.IOException
 import java.text.SimpleDateFormat
@@ -206,7 +208,7 @@ class MainActivity : AppCompatActivity(), Timer.TimerTickListener {
             File(filePath(dirPath, filename)).renameTo(newFile)
         }
         val filePath = filePath(dirPath, newFileName)
-        viewModel.addNoteItem(newFileName, date, durationInMillis, filePath)
+        viewModel.addNoteItem(newFileName, date, formatDuration(durationInMillis), filePath)
         tvTimer.text = defaultTimerText
     }
     override fun timerTick(duration: String) {
@@ -225,5 +227,14 @@ class MainActivity : AppCompatActivity(), Timer.TimerTickListener {
     private fun requestAudioPermission() {
         if (!isAudioPermissionGranted())
             showAudioPermissionDialog(REQUEST_CODE)
+    }
+
+
+    private fun formatDuration(duration: Long): String {
+        val millis = duration % 1000
+        val seconds = (duration / 1000) % 60
+        val minutes = (duration / (1000 * 60)) % 60
+
+        return "%02d:%02d".format(minutes, seconds)
     }
 }

@@ -182,12 +182,14 @@ class NotesActivity : AppCompatActivity() {
             if (VK.isLoggedIn()) {
                 val noteToShareFile = File(it.filepath)
                 val file = Uri.fromFile(noteToShareFile)
+                val newfileName = "noteRuslan"
+                showToast(it.fileName + " " + file.toString())
                 VK.execute(
                     VKWallPostCommand(
-                        "kkkkkkkk",
+                        "trying to post",
                         file,
-                        it.fileName,
-                        98
+                        newfileName,
+                        0
                     ), object:
                         VKApiCallback<VKServerUploadInfo2> {
                         override fun fail(error: Exception) {

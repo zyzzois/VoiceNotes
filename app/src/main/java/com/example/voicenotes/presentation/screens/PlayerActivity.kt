@@ -15,7 +15,6 @@ import com.example.voicenotes.R
 import com.example.voicenotes.app.NoteListApp
 import com.example.voicenotes.databinding.ActivityPlayerBinding
 import com.example.voicenotes.stc.SpeechTextClass
-import com.example.voicenotes.utils.convertDate
 import com.example.voicenotes.presentation.vm.ViewModelFactory
 import kotlinx.coroutines.*
 import java.lang.Runnable

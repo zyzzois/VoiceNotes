@@ -11,7 +11,7 @@ class NoteItemViewModel @Inject constructor(
     private val addNoteUseCase: AddNoteUseCase
 ): ViewModel() {
 
-    fun addNoteItem(fileName: String, timesTamp: String, duration: Long, filePath: String) {
+    fun addNoteItem(fileName: String, timesTamp: String, duration: String, filePath: String) {
         viewModelScope.launch {
             val noteItem = NoteEntity(
                 fileName = fileName,

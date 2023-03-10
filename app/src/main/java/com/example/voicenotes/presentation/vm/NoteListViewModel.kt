@@ -9,6 +9,7 @@ import com.example.domain.usecase.DeleteNoteUseCase
 import com.example.domain.usecase.GetNoteListUseCase
 import com.example.domain.usecase.SearchInDatabaseUseCase
 import kotlinx.coroutines.launch
+import java.io.File
 import javax.inject.Inject
 
 class NoteListViewModel @Inject constructor(
@@ -26,6 +27,10 @@ class NoteListViewModel @Inject constructor(
     fun deleteNote(note: NoteEntity) {
         viewModelScope.launch {
             deleteNoteItemUseCase(note)
+            val file = File(note.filepath)
+            if (file.exists()) {
+                file.delete()
+            }
         }
     }
 

@@ -36,19 +36,7 @@ fun filePath(dirPath: String, fileName: String): String {
     return dirPath+fileName+M4A
 }
 
-fun convertDate(duration: Int): String {
-    val tmp = duration/100
-    val seconds = tmp%60
-    val minutes = (tmp/60 % 60)
-    val hours = ((tmp - minutes*60)/360)
-    val formatted: NumberFormat = DecimalFormat("00")
-    var str = "$minutes:${formatted.format(seconds)}"
-    if (hours > 0)
-        str = "$hours:$str"
-    return str
-}
-
-fun returnDefaultFileName(date: String) = AUDIO_RECORD_ + date + M4A
+fun returnDefaultFileName(date: String) = AUDIO_RECORD_ + date
 
 private const val M4A = ".m4a"
 private const val AUDIO_RECORD_ = "note_"
