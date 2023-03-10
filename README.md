@@ -32,5 +32,6 @@
 ![image](https://user-images.githubusercontent.com/53741925/222985076-d6330cd8-ec3e-419b-9059-909f8bb458bb.png)
 
 
-changes after the deadline: 
+
+**changes after the deadline:** 
 switch to branch `after deadline`
